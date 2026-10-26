@@ -9,6 +9,9 @@
     //make req json
     header("Content-type: application/json; charset=UTF-8");
 
+    set_error_handler("errorHandler::handleError");
+    set_exception_handler("errorHandler::handleException");
+
     $parts= explode("/" , $_SERVER["REQUEST_URI"]);
 
     if($parts[1] != "chess"){
@@ -16,7 +19,5 @@
         http_response_code(404);
         exit;
     }
-
-
 
 ?>
