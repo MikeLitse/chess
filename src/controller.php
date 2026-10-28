@@ -29,6 +29,15 @@
                 case "GET":
                     echo json_encode($user);
                     break;
+                case "DELETE":
+                    $rows= $this->gateway->deleteUser($id);
+
+                    echo json_encode([
+                        "message" => "User $id deleted",
+                        "rows" => $rows
+                    ]);
+                    break;
+
             }
         }
 

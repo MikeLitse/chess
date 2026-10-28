@@ -56,6 +56,20 @@
             return $this->conn->lastInsertId();//return last id inserted
 
         }
+        
+        public function deleteUser(string $id) : int{
+
+            $sql = "DELETE FROM users WHERE id=:id";
+
+            $stmt = $this->conn->prepare($sql);
+
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            return $stmt->rowCount();//returns affected rows
+
+        }
 
     }
 
