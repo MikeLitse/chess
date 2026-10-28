@@ -37,7 +37,29 @@
                         "rows" => $rows
                     ]);
                     break;
+                case "PATCH":
+                    //cast into array so it doesnt return null
+		            $data= (array) json_decode(file_get_contents("php://input"),true); //true returns a assoc array
 
+                    $errors= $this->getValidationErrors($data, false);
+
+                    if(!empty($errors)){
+                        http_response_code(422);
+                        echo json_encode([
+                            "errors" => $errors
+                        ]);
+                        break;
+                    }
+
+                    $rows= $this->gateway->updateUser($user, $data);
+
+                    http_response_code(201);
+
+                    echo json_encode([
+                        "message" => "User $id updated",
+                        "rows" => $rows
+                    ]);
+                    break;
             }
         }
 
