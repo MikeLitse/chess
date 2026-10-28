@@ -32,6 +32,6 @@
 
     $controller = new Controller($gateway);
 
-    $controller -> processRequest($_SERVER["REQUEST_METHOD"], $id)
+    //$controller -> processRequest($_SERVER["REQUEST_METHOD"], $id)
 
 ?>
