@@ -10,7 +10,7 @@
 
         public function getAllUsers() : array{
             
-            $sql = "SELECT * FROM users";
+            $sql = "SELECT * FROM users;";
 
             $stmt = $this->conn->query($sql);
             
@@ -27,7 +27,7 @@
 
         public function getUser(string $id) : array | false{
 
-            $sql = "SELECT * FROM users WHERE id= :id";
+            $sql = "SELECT * FROM users WHERE id= :id;";
 
             $stmt = $this->conn->prepare($sql);
 
@@ -38,6 +38,22 @@
             $data = $stmt->fetch(PDO::FETCH_ASSOC);//returns assoc
 
             return $data;
+
+        }
+
+        public function createUser(array $data) : string{
+
+            $sql = "INSERT INTO users( username, pass)
+                    VALUES (:user, :pass);";
+
+            $stmt = $this->conn->prepare($sql);
+            
+            $stmt->bindValue(":user", $data["user"], PDO::PARAM_STR);
+            $stmt->bindValue(":pass", $data["pass"], PDO::PARAM_STR);
+
+            $stmt->execute();
+
+            return $this->conn->lastInsertId();//return last id inserted
 
         }
 

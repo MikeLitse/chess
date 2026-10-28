@@ -37,7 +37,51 @@
                 case "GET":
                     echo json_encode($this->gateway->getAllUsers());
                     break;
+                case "POST":
+                    //cast into array so it doesnt return null
+                    $data= (array) json_decode(file_get_contents("php://input"), true);//true returns assoc
+
+                    $errors= $this->getValidationErrors($data);
+                    
+                    if(!empty($errors)){
+                        
+                        http_response_code(422);
+                        echo json_encode(["errors" => $errors]);
+                        break;
+                        
+                    }
+
+                    $id = $this->gateway->createUser($data);
+
+                    http_response_code(201);
+
+                    echo json_encode([
+                        "message" => "User Created",
+                        "id" => $id
+                    ]);
+
+                    break;
+
+                default :
+                    //check allowed methods
+                    http_response_code(405);
+                    header("Allow: GET, POST");
             }
+        }
+
+        private function getValidationErrors(array $data, bool $is_new= true): array{
+            $errors = [];
+
+            if(empty($data["user"])){
+                $errors[] = "username required";
+            }
+            if(empty($data["pass"])){
+                $errors[] = "password required";
+            }
+            
+
+            return $errors;
+
         }
 
     }

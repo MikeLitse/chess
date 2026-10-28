@@ -13,7 +13,7 @@
     set_exception_handler("errorHandler::handleException");
 
     $path = trim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), "/");
-    $parts= explode("/" , $path);
+    $parts= array_values(array_filter(explode("/", $path)));
 
     //echo json_encode(["path" => $path, "parts" => $parts, "id_selected" => $parts[1] ?? null]);
 
@@ -24,8 +24,6 @@
         //exit;
     }
 
-    $id = $_GET["id"] ?? null;//this can be null wanna might remove later
-
     //echo json_encode(["id" => $id]);
 
     $database = new Database("localhost","chess_db","root","");
@@ -34,10 +32,23 @@
 
     $gateway = new Gateway($database);
 
-    //$data = $gateway->getAllUsers();
-
     $controller = new Controller($gateway);
 
+    //$data = $gateway->getAllUsers();
+
+    //get a single element
+    $id = null;
+    if (!empty($parts[1])) {
+        $id = (string) $parts[1];
+    } elseif (!empty($_GET["id"])) {
+        $id = (string) $_GET["id"];
+    }//this can be null wanna might remove later
+
+
+    //test POST
+    $data= $_POST ?? null;
+
     $controller -> processRequest($_SERVER["REQUEST_METHOD"], $id);
+
 
 ?>
