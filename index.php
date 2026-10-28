@@ -12,15 +12,21 @@
     set_error_handler("errorHandler::handleError");
     set_exception_handler("errorHandler::handleException");
 
-    $parts= explode("/" , $_SERVER["REQUEST_URI"]);
+    $path = trim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), "/");
+    $parts= explode("/" , $path);
 
-    if($parts[1] != "chess"){
+    //echo json_encode(["path" => $path, "parts" => $parts, "id_selected" => $parts[1] ?? null]);
+
+
+    if($parts[0] != "chess"){
         //return 404 if any other URL
-        http_response_code(404);
-        exit;
+        //http_response_code(404);
+        //exit;
     }
 
-    $id = $parts[2] ?? null;//this can be null wanna might remove later
+    $id = $_GET["id"] ?? null;//this can be null wanna might remove later
+
+    //echo json_encode(["id" => $id]);
 
     $database = new Database("localhost","chess_db","root","");
 
@@ -28,10 +34,10 @@
 
     $gateway = new Gateway($database);
 
-    $data = $gateway->getAllUsers();
+    //$data = $gateway->getAllUsers();
 
     $controller = new Controller($gateway);
 
-    //$controller -> processRequest($_SERVER["REQUEST_METHOD"], $id)
+    $controller -> processRequest($_SERVER["REQUEST_METHOD"], $id);
 
 ?>
