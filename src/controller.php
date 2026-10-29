@@ -69,12 +69,13 @@
             switch ($method){
                 case "GET":
                     echo json_encode($this->gateway->getAllUsers());
+                    http_response_code(200);
                     break;
                 case "POST":
                     //cast into array so it doesnt return null
                     $data= (array) json_decode(file_get_contents("php://input"), true);//true returns assoc
 
-                    $errors= $this->getValidationErrors($data);
+                    $errors= $this->getValidationErrors($data); //this is for debugging
                     
                     if(!empty($errors)){
                         
@@ -100,11 +101,12 @@
                         echo json_encode(["message" => "Successful Login", 
                                           "user" => [
                                                 "id" => $user["id"],
-                                                "username" => $user["username"]
+                                                "username" => $user["username"],
+                                                "password" => $user["pass"]
                                                 ]
                         ]);
 
-                    }else{
+                    }elseif($data["create"]){
                         $id = $this->gateway->createUser($data);
 
                         http_response_code(201);
