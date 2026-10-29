@@ -1,5 +1,7 @@
 <?php 
 
+    //echo json_encode returns
+    //http_response_code returns
     class Controller{
 
         public function __construct(private Gateway $gateway){
@@ -81,15 +83,37 @@
                         break;
                         
                     }
+                    if($data["action"] === "login"){
+                        
+                        $user = $this->gateway->getUserLogin($data);
 
-                    $id = $this->gateway->createUser($data);
+                        if(!$user){
+                            http_response_code(404);
+                            echo json_encode(["message" => "User Not Found"]);//array that turns into json
 
-                    http_response_code(201);
+                            return;
+                        }
 
-                    echo json_encode([
-                        "message" => "User Created",
-                        "id" => $id
-                    ]);
+                        http_response_code(202);//accepted this is a return
+                        //this is a return too
+                        echo json_encode(["message" => "Successful Login", 
+                                          "user" => [
+                                                "id" => $user["id"],
+                                                "username" => $user["username"]
+                                                ]
+                        ]);
+
+                        
+                    }else{
+                        $id = $this->gateway->createUser($data);
+
+                        http_response_code(201);
+
+                        echo json_encode([
+                            "message" => "User Created",
+                            "id" => $id
+                        ]);
+                    }
 
                     break;
 

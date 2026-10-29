@@ -41,6 +41,23 @@
 
         }
 
+        public function getUserLogin(array $data) : array | false{
+
+            $sql = "SELECT * FROM users WHERE username= :user AND pass= :pass";
+
+            $stmt = $this->conn->prepare($sql);
+
+            $stmt->bindValue(":user", $data["user"], PDO::PARAM_STR);
+            $stmt->bindValue(":pass", $data["pass"], PDO::PARAM_STR);
+            $stmt->execute();
+
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);//returns assoc
+
+            return $data;
+
+        }
+
+
         public function createUser(array $data) : string{
 
             $sql = "INSERT INTO users( username, pass)

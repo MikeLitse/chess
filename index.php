@@ -20,8 +20,8 @@
 
     if($parts[0] != "chess"){
         //return 404 if any other URL
-        //http_response_code(404);
-        //exit;
+        http_response_code(404);
+        exit;
     }
 
     //echo json_encode(["id" => $id]);
@@ -34,21 +34,21 @@
 
     $controller = new Controller($gateway);
 
-    //$data = $gateway->getAllUsers();
-
-    //get a single element
+    //handle POST id in url
     $id = null;
     if (!empty($parts[1])) {
         $id = (string) $parts[1];
     } elseif (!empty($_GET["id"])) {
         $id = (string) $_GET["id"];
     }//this can be null wanna might remove later
-
+    
 
     //test POST
-    $data= $_POST ?? null;
+    //$data= $_POST ?? null;
 
     $controller -> processRequest($_SERVER["REQUEST_METHOD"], $id);
+    
+    
 
 
 ?>
