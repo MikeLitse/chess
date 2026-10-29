@@ -106,15 +106,22 @@
                                                 ]
                         ]);
 
-                    }elseif($data["create"]){
-                        $id = $this->gateway->createUser($data);
+                    }elseif($data["action"] === "create"){
+                        $this->gateway->createUser($data);
+
+                        $user = $this->gateway->getUserLogin($data);
 
                         http_response_code(201);
 
                         echo json_encode([
                             "message" => "User Created",
-                            "id" => $id
-                        ]);
+                            "user" => [
+                                        "id" => $user["id"],
+                                        "username" => $user["username"],
+                                        "password" => $user["pass"]
+                                    ]
+                            ]
+                        );
                     }
 
                     break;

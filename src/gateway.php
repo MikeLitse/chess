@@ -41,20 +41,27 @@
 
         }
 
-        public function getUserLogin(array $data) : array | false{
+        public function getUserLogin(array $data) : array | false {
 
-            $sql = "SELECT * FROM users WHERE username= :user AND pass= :pass";
+            $sql = "SELECT * FROM users WHERE username = :user";
 
             $stmt = $this->conn->prepare($sql);
-
             $stmt->bindValue(":user", $data["user"], PDO::PARAM_STR);
-            $stmt->bindValue(":pass", $data["pass"], PDO::PARAM_STR);
             $stmt->execute();
 
-            $data = $stmt->fetch(PDO::FETCH_ASSOC);//returns assoc
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            return $data;
+            // If username is not in the DB, stop here
+            if (!$user) {
+                return false;
+            }
 
+            // Verify plain-text password against the database hash
+            if (password_verify($data["pass"], $user["pass"])) {
+                return $user;
+            }
+
+            return false;
         }
 
 
@@ -64,9 +71,10 @@
                     VALUES (:user, :pass);";
 
             $stmt = $this->conn->prepare($sql);
-            
+            //implement this
+            $hash=password_hash($data["pass"], PASSWORD_DEFAULT);
             $stmt->bindValue(":user", $data["user"], PDO::PARAM_STR);
-            $stmt->bindValue(":pass", $data["pass"], PDO::PARAM_STR);
+            $stmt->bindValue(":pass", $hash, PDO::PARAM_STR);
 
             $stmt->execute();
 
