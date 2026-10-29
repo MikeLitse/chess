@@ -43,7 +43,7 @@
                     //cast into array so it doesnt return null
 		            $data= (array) json_decode(file_get_contents("php://input"),true); //true returns a assoc array
 
-                    $errors= $this->getValidationErrors($data, false);
+                    $errors= $this->getValidationErrors($data);
 
                     if(!empty($errors)){
                         http_response_code(422);
@@ -80,21 +80,22 @@
                         
                         http_response_code(422);
                         echo json_encode(["errors" => $errors]);
-                        break;
+                        return;
                         
                     }
+
                     if($data["action"] === "login"){
                         
                         $user = $this->gateway->getUserLogin($data);
 
                         if(!$user){
-                            http_response_code(404);
-                            echo json_encode(["message" => "User Not Found"]);//array that turns into json
+                            http_response_code(401);
+                            echo json_encode(["message" => "Invalid Username or Password"]);//array that turns into json
 
                             return;
                         }
 
-                        http_response_code(202);//accepted this is a return
+                        http_response_code(200);//OK this is a return
                         //this is a return too
                         echo json_encode(["message" => "Successful Login", 
                                           "user" => [
@@ -103,7 +104,6 @@
                                                 ]
                         ]);
 
-                        
                     }else{
                         $id = $this->gateway->createUser($data);
 
@@ -124,7 +124,7 @@
             }
         }
 
-        private function getValidationErrors(array $data, bool $is_new= true): array{
+        private function getValidationErrors(array $data): array{
             $errors = [];
 
             if(empty($data["user"])){
@@ -133,8 +133,7 @@
             if(empty($data["pass"])){
                 $errors[] = "password required";
             }
-            
-
+        
             return $errors;
 
         }
