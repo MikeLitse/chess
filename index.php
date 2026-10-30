@@ -16,7 +16,6 @@
     $parts= array_values(array_filter(explode("/", $path)));
 
     //echo json_encode(["path" => $path, "parts" => $parts, "id_selected" => $parts[1] ?? null]);
-    $parts = array_values(array_filter($parts, fn($part) => $part !== "index.php"));
 
     if($parts[0] != "chess"){
         //return 404 if any other URL
@@ -35,20 +34,12 @@
     $controller = new Controller($gateway);
 
     //handle POST id in url
-    $id = null;
-    if (!empty($parts[1])) {
-        $id = (string) $parts[1];
-    } elseif (!empty($_GET["id"])) {
-        $id = (string) $_GET["id"];
+    if(($parts[1] ?? "") === "index.php") {
+        $id = $parts[2] ?? ($_GET["id"] ?? null);
+    } else {
+        $id = $parts[1] ?? ($_GET["id"] ?? null);
     }//this can be null wanna might remove later
-    
-
-    //test POST
-    //$data= $_POST ?? null;
 
     $controller -> processRequest($_SERVER["REQUEST_METHOD"], $id);
     
-    
-
-
 ?>
