@@ -120,7 +120,7 @@
             $stmt = $this->conn->prepare($sql);
 
             //TODO change db in order to receive string id
-            $stmt->bindValue(":idw", $data["user"],PDO::PARAM_INT);
+            $stmt->bindValue(":idw", $data["id"],PDO::PARAM_INT);
             $stmt->bindValue(":idb", 0,PDO::PARAM_INT);
             $stmt->bindValue(":playerturn", 0, PDO::PARAM_INT);
 

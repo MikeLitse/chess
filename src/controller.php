@@ -166,7 +166,7 @@
                 }
             }
             if ($action === "creategame") {
-                if (empty($data["user"])) {
+                if (empty($data["id"])) {
                     $errors[] = "username required";
                 }
             }
