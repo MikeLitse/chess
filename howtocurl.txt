@@ -1,0 +1,6 @@
+POST(login): curl -X POST http://localhost/chess/   -H "Content-Type: application/json"   -H "Accept: application/json"   -d '{"user": "admin", "pass": "admin", "action": "login"}'
+
+PATCH: curl -X PATCH http://localhost/chess/index.php/22 -H "Content-Type: application/json" -H "Accept: application/json" -d '{"user": "admin_updated", "pass": "admin123"}'i
+
+DELETE: curl -X DELETE http://localhost/chess/index.php/20 \
+  -H "Accept: application/json"

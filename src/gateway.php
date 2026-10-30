@@ -103,9 +103,15 @@
                     WHERE id = :id";
 
             $stmt = $this->conn->prepare($sql);
+            if(!empty($new["pass"])){
+                $password = password_hash($new["pass"], PASSWORD_DEFAULT) ;
+            }else{
+                $password = $current["pass"];
+            }
 
+           
             $stmt->bindValue(":user", $new["user"] ?? $current["user"], PDO::PARAM_STR);
-            $stmt->bindValue(":pass", $new["pass"] ?? $current["pass"], PDO::PARAM_STR);
+            $stmt->bindValue(":pass", $password, PDO::PARAM_STR);
             $stmt->bindValue(":id", $new["id"] ?? $current["id"], PDO::PARAM_INT);
 
             $stmt->execute();
