@@ -4,11 +4,25 @@
     //http_response_code returns
     class Controller{
 
+        private string $logFile;
         public function __construct(private Gateway $gateway){
-
+            $this->logFile = __DIR__ . '/last_request.txt';
         }
 
         public function processRequest(string $method, ?string $id) : void {
+
+            $fullUrl = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on" ? "https" : "http")
+            . "://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
+
+            if($method !== "GET"){
+                file_put_contents($this->logFile, json_encode([
+                    "url" => $fullUrl,
+                    "method" => $method,
+                    "time" => date("Y-m-d H:i:s")
+                ])
+                );
+            }
+
             if($id){
                $this->processResourceRequest($method,$id);
             }else{
@@ -29,7 +43,16 @@
 
             switch ($method){
                 case "GET":
-                    echo json_encode($user);
+                    $lastCurl = file_exists($this->logFile) 
+                        ? json_decode(file_get_contents($this->logFile), true) 
+                        : "No curl requests recorded yet";
+
+                    http_response_code(200);
+                    echo json_encode([
+                        "HTTP" => 200,
+                        "message" => "OK",
+                        "last_curled" => $lastCurl
+                    ]);
                     break;
                 case "DELETE":
                     $rows= $this->gateway->deleteUser($id);
@@ -68,10 +91,16 @@
         private function processControllerRequest(string $method) : void {
             switch ($method){
                 case "GET":
-                    //echo json_encode($this->gateway->getAllUsers());
-                    echo json_encode(["HTTP" => 200,
-                                    "message" => "OK"]);
+                    $lastCurl = file_exists($this->logFile) 
+                        ? json_decode(file_get_contents($this->logFile), true) 
+                        : "No curl requests recorded yet";
+
                     http_response_code(200);
+                    echo json_encode([
+                        "HTTP" => 200,
+                        "message" => "OK",
+                        "last_curled" => $lastCurl
+                    ]);
                     break;
                 case "POST":
                     //cast into array so it doesnt return null
