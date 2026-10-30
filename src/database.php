@@ -5,20 +5,27 @@
         }
 
         public function getConnection(): PDO{
-            $dsn=
+            try{
+
+                $dsn=
                 "mysql:host={$this->host};
                 dbname={$this->name};
                 user={$this->user};
                 password={$this->password};"
-            ;
+                ;
 
-            //returbs the json with the correct format
-            return new PDO($dsn, $this->user, $this->password,
-            [
-                PDO::ATTR_EMULATE_PREPARES => false,
-                PDO::ATTR_STRINGIFY_FETCHES =>false
-            ]
-            );
+                $pdo= new PDO($dsn, $this->user, $this->password,
+                            [
+                                PDO::ATTR_EMULATE_PREPARES => false,
+                                PDO::ATTR_STRINGIFY_FETCHES =>false
+                            ]);
+                
+                return $pdo;
+            }catch(PDOException $e){
+                http_response_code(500);
+                echo json_encode(["message" => "Internal Server Error"]);
+            }
+        
         }
     }
 ?>

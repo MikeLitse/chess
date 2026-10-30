@@ -114,6 +114,21 @@
 
         }
 
+        public function createGame(array $data){
+            $sql="INSERT INTO games ( white, black, player_turn)
+                    VALUES (:idw, :idb, :playerturn)";
+            $stmt = $this->conn->prepare($sql);
+
+            //TODO change db in order to receive string id
+            $stmt->bindValue(":idw", $data["user"],PDO::PARAM_INT);
+            $stmt->bindValue(":idb", 0,PDO::PARAM_INT);
+            $stmt->bindValue(":playerturn", 0, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            return $this->conn->lastInsertId();//return last id inserted
+        }
+
     }
 
 ?>

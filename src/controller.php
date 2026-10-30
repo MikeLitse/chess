@@ -68,7 +68,9 @@
         private function processControllerRequest(string $method) : void {
             switch ($method){
                 case "GET":
-                    echo json_encode($this->gateway->getAllUsers());
+                    //echo json_encode($this->gateway->getAllUsers());
+                    echo json_encode(["HTTP" => 200,
+                                    "message" => "OK"]);
                     http_response_code(200);
                     break;
                 case "POST":
@@ -105,8 +107,10 @@
                                                 "password" => $user["pass"]
                                                 ]
                         ]);
+                        return;
 
-                    }elseif($data["action"] === "create"){
+                    }
+                    if($data["action"] === "create"){
                         $this->gateway->createUser($data);
 
                         $user = $this->gateway->getUserLogin($data);
@@ -122,6 +126,19 @@
                                     ]
                             ]
                         );
+                        return;
+                    }
+
+                    if($data["action"] === "creategame"){
+                        $game = $this->gateway->createGame($data);
+
+                        http_response_code(201);
+                        echo json_encode([
+                            "message" => "Game Created Successfully",
+                            "game" => [
+                                        "id" => $game
+                                        ]
+                        ]);
                     }
 
                     break;
@@ -135,14 +152,25 @@
 
         private function getValidationErrors(array $data): array{
             $errors = [];
+            $action = $data["action"] ?? null;
 
-            if(empty($data["user"])){
-                $errors[] = "username required";
+            if($action === "login" || $action === "create"){
+
+                $action = $data["action"] ?? null;
+
+                if (empty($data["user"])) {
+                    $errors[] = "username required";
+                }
+                if (empty($data["pass"])) {
+                    $errors[] = "password required";
+                }
             }
-            if(empty($data["pass"])){
-                $errors[] = "password required";
+            if ($action === "creategame") {
+                if (empty($data["user"])) {
+                    $errors[] = "username required";
+                }
             }
-        
+
             return $errors;
 
         }
