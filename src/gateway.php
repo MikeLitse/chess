@@ -109,10 +109,9 @@
                 $password = $current["pass"];
             }
 
-           
-            $stmt->bindValue(":user", $new["user"] ?? $current["user"], PDO::PARAM_STR);
+            $stmt->bindValue(":user", $new["user"] ?? $current["username"], PDO::PARAM_STR);
             $stmt->bindValue(":pass", $password, PDO::PARAM_STR);
-            $stmt->bindValue(":id", $new["id"] ?? $current["id"], PDO::PARAM_INT);
+            $stmt->bindValue(":id", $current["id"], PDO::PARAM_INT);
 
             $stmt->execute();
 
