@@ -119,8 +119,8 @@
 
         }
 
-        public function createGame(array $data){
-            $sql="INSERT INTO games ( white, black, player_turn)
+        public function createGame(array $data) : array | false{
+            $sql = "INSERT INTO games ( white, black, player_turn)
                     VALUES (:idw, :idb, :playerturn)";
             $stmt = $this->conn->prepare($sql);
 
@@ -130,9 +130,23 @@
 
             $stmt->execute();
 
-            return $this->conn->lastInsertId();//return last id inserted
+            $id = $this->conn->lastInsertId();
+
+            $sql = "SELECT * FROM games WHERE id = :id";
+
+            $stmt = $this->conn->prepare($sql);
+
+            $stmt->bindValue(":id",$id,PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            $game = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$game) {
+                return false;
+            }else{
+                return $game;
+            }
         }
-
     }
-
 ?>

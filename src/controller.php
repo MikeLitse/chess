@@ -10,7 +10,8 @@
         }
 
         public function processRequest(string $method, ?string $id) : void {
-
+            
+            //save last curl
             $fullUrl = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on" ? "https" : "http")
             . "://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
 
@@ -160,14 +161,28 @@
 
                     if($data["action"] === "creategame"){
                         $game = $this->gateway->createGame($data);
+                        
+                        if(!empty($game)){
+                            http_response_code(201);
+                            echo json_encode([
+                                "message" => "Game Created Successfully",
+                                "game" => [
+                                            "id" => $game["id"],
+                                            "status" => $game["status"],
+                                            "timestamp" => $game["created_at"],
+                                            "white" => $game["white"],
+                                            "black" => $game["black"]
+                                            ]
+                            ]);
+                        }else{
+                            http_response_code(500);
+                            echo json_encode([
+                                "message" => "Internal Server Error",
+                                "action" => "Could not create game"
+                            ]);
+                        }
 
-                        http_response_code(201);
-                        echo json_encode([
-                            "message" => "Game Created Successfully",
-                            "game" => [
-                                        "id" => $game
-                                        ]
-                        ]);
+                        
                     }
 
                     break;
@@ -196,14 +211,11 @@
             }
             if ($action === "creategame") {
                 if (empty($data["id"])) {
-                    $errors[] = "username required";
+                    $errors[] = "User Id required";
                 }
             }
 
             return $errors;
-
         }
-
     }
-
 ?>
