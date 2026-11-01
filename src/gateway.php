@@ -125,7 +125,7 @@
             $stmt = $this->conn->prepare($sql);
 
             $stmt->bindValue(":idw", $data["id"],PDO::PARAM_INT);
-            //$stmt->bindValue(":idb", 0,PDO::PARAM_INT);
+            //$stmt->bindValue(":idb", $data,PDO::PARAM_INT);
             $stmt->bindValue(":playerturn", 0, PDO::PARAM_INT);
 
             $stmt->execute();
@@ -162,11 +162,37 @@
                 
         }
 
-        public function updateGame(array $data) : array | false{
+        public function updateGame(int $id, array $data) : int {
+            $gamecurr = $this->getGame($id);
             
-           // $sql = "UPDATE games
-                //    WHERE id = :id
-                 //   SET black="
+            if (!$gamecurr) {
+                return 0;
+            }
+
+            $sql = null;
+            
+            if (empty($gamecurr["black"])) {
+                $sql = "UPDATE games
+                        SET black = :userid,
+                            status = 'playing'
+                        WHERE id = :id";
+                
+            } elseif (empty($gamecurr["white"])) {
+                $sql = "UPDATE games
+                        SET white = :userid,
+                            status = 'playing'
+                        WHERE id = :id";
+                
+            } else {
+                return 0;
+            }
+
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(":id", $data["id"], PDO::PARAM_INT);
+            $stmt->bindValue(":userid", $data["userid"], PDO::PARAM_INT);
+            $stmt->execute();
+
+            return $stmt->rowCount();
         }
 
     }

@@ -32,16 +32,7 @@
         }
 
         private function processResourceRequest(string $method, string $id) : void {
-            $user = $this->gateway->getUser($id);
-
-            //if there are no users return 404
-            if(!$user){
-                http_response_code(404);
-                echo json_encode(["message" => "User Not Found"]);//array that turns into json
-
-                return;
-            }
-
+        
             switch ($method){
                 case "GET":
                     $lastCurl = file_exists($this->logFile) 
@@ -64,27 +55,72 @@
                     ]);
                     break;
                 case "PATCH":
-                    //cast into array so it doesnt return null
-		            $data= (array) json_decode(file_get_contents("php://input"),true); //true returns a assoc array
 
-                    $errors= $this->getValidationErrors($data);
+                    $data= (array) json_decode(file_get_contents("php://input"),true); //true returns a assoc array
+                    
+                    if($data["action"] == "updateuser"){
 
-                    if(!empty($errors)){
-                        http_response_code(422);
+                        $user = $this->gateway->getUser($id);
+
+                        if(!$user){
+                            http_response_code(404);
+                            echo json_encode(["message" => "User Not Found"]);//array that turns into json
+
+                            return;
+                        }
+
+                        //cast into array so it doesnt return null
+                        $errors= $this->getValidationErrors($data);
+
+                        if(!empty($errors)){
+                            http_response_code(422);
+                            echo json_encode([
+                                "errors" => $errors
+                            ]);
+                            return;
+                        }
+
+                        $rows= $this->gateway->updateUser($user, $data);
+
+                        http_response_code(201);
+
                         echo json_encode([
-                            "errors" => $errors
+                            "message" => "User $id updated",
+                            "rows" => $rows
                         ]);
-                        break;
                     }
+                    if($data["action"] === "updategame"){
+                        $game = $this->gateway->getgame($id);
 
-                    $rows= $this->gateway->updateUser($user, $data);
+                        if(!$game){
+                            http_response_code(404);
+                            echo json_encode(["message" => "Game Not Found"]);//array that turns into json
 
-                    http_response_code(201);
+                            return;
+                        }
 
-                    echo json_encode([
-                        "message" => "User $id updated",
-                        "rows" => $rows
-                    ]);
+                        //cast into array so it doesnt return null
+                        $errors= $this->getValidationErrors($data);
+
+                        if(!empty($errors)){
+                            http_response_code(422);
+                            echo json_encode([
+                                "errors" => $errors
+                            ]);
+                            return;
+                        }
+
+                        $rows= $this->gateway->updateGame($id, $data);
+
+                        http_response_code(201);
+
+                        echo json_encode([
+                            "message" => "Game: $id updated",
+                            "rows" => $rows
+                        ]);
+
+                    }
+                    
                     break;
             }
         }
@@ -200,6 +236,7 @@
                             ]);
                         }
                     }
+                    
 
                     break;
 
@@ -228,6 +265,16 @@
             if ($action === "creategame") {
                 if (empty($data["id"])) {
                     $errors[] = "User Id required";
+                }
+            }
+            if($action === "updategame"){
+                if (empty($data["id"])) {
+                    $errors[] = "GameId required";
+                }
+            }
+            if($action === "updateuser"){
+                if (empty($data["id"])) {
+                    $errors[] = "UserId required";
                 }
             }
 
