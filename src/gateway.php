@@ -25,7 +25,7 @@
             return $data;//assoc array
         }
 
-        public function getUser(string $id) : array | false{
+        public function getUser(int $id) : array | false{
 
             $sql = "SELECT * FROM users WHERE id= :id;";
 
@@ -120,27 +120,19 @@
         }
 
         public function createGame(array $data) : array | false{
-            $sql = "INSERT INTO games ( white, black, player_turn)
-                    VALUES (:idw, :idb, :playerturn)";
+            $sql = "INSERT INTO games ( white, player_turn)
+                    VALUES (:idw, :playerturn)";
             $stmt = $this->conn->prepare($sql);
 
             $stmt->bindValue(":idw", $data["id"],PDO::PARAM_INT);
-            $stmt->bindValue(":idb", 0,PDO::PARAM_INT);
+            //$stmt->bindValue(":idb", 0,PDO::PARAM_INT);
             $stmt->bindValue(":playerturn", 0, PDO::PARAM_INT);
 
             $stmt->execute();
 
             $id = $this->conn->lastInsertId();
 
-            $sql = "SELECT * FROM games WHERE id = :id";
-
-            $stmt = $this->conn->prepare($sql);
-
-            $stmt->bindValue(":id",$id,PDO::PARAM_INT);
-
-            $stmt->execute();
-
-            $game = $stmt->fetch(PDO::FETCH_ASSOC);
+            $game = $this->getGame($id);
 
             if (!$game) {
                 return false;
@@ -148,5 +140,34 @@
                 return $game;
             }
         }
+
+        public function getGame(int $id): array | false{
+
+                $sql="SELECT * FROM games WHERE id = :id";
+
+                $stmt = $this->conn->prepare($sql);
+
+                $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+
+                $stmt->execute();
+
+                $game = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if(!$game){
+                    return false;
+                }else{
+                    return $game;
+                }
+
+                
+        }
+
+        public function updateGame(array $data) : array | false{
+            
+           // $sql = "UPDATE games
+                //    WHERE id = :id
+                 //   SET black="
+        }
+
     }
 ?>

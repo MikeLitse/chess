@@ -181,8 +181,24 @@
                                 "action" => "Could not create game"
                             ]);
                         }
+                    }
 
-                        
+                    if($data["action"] === "getgame"){
+                        $game= $this->gateway->getGame($data["id"]);
+
+                        if(!empty($game)){
+                            http_response_code(200);
+                            echo json_encode([
+                                "message" => "Game:",
+                                "game" => [
+                                            "id" => $game["id"],
+                                            "status" => $game["status"],
+                                            "timestamp" => $game["created_at"],
+                                            "white" => $game["white"],
+                                            "black" => $game["black"]
+                                            ]
+                            ]);
+                        }
                     }
 
                     break;
