@@ -149,7 +149,7 @@
 
         }
 
-        public function updateGame(int $id, array $data) : int {
+        public function joinGame(int $id, array $data) : int {
             $gamecurr = $this->getGame($id);
             
             if (!$gamecurr) {
@@ -180,6 +180,11 @@
             $stmt->execute();
 
             return $stmt->rowCount();
+        }
+        public function quitGame(int $id, array $data){
+
+            
+
         }
 
     }

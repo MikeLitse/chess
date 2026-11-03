@@ -31,7 +31,7 @@
                     $this->handleUsers($method, $id);
                     break;
                 case "games":
-                    $this->handleGames($method, $id ? (int) $id : null);
+                    $this->handleGames($method, $id);
                     break;
                 case "auth":
                     $this->handleAuth($method, $id);
@@ -72,12 +72,18 @@
 
                         $rows = $this->gateway->updateUser($user, $data);
                         http_response_code(200);
-                        echo json_encode(["message" => "User update", "rows" => $rows]);
+                        echo json_encode(["message" => "User update", 
+                                        "rows" => $rows,
+                                        "user" => $user["username"]
+                                        ]);
                         break;
                     case "DELETE":
                         $rows = $this->gateway->deleteUser((string)$id);
                         http_response_code(200);
-                        echo json_encode(["message" => "User deleted", "rows" => $rows]);
+                        echo json_encode(["message" => "User deleted", 
+                                        "rows" => $rows,
+                                        "id" => $id
+                        ]);
                         break;
                     default:
                         http_response_code(405);
@@ -90,11 +96,11 @@
                     case "GET":
                         $users = $this->gateway->getAllUsers();
 
-                        $sanitized = array_map(function ($u){
+                        $nopass = array_map(function ($u){
                             unset($u["pass"]);
                             return $u;
                         }, $users);
-                        echo json_encode($sanitized);
+                        echo json_encode($nopass);
                         break;
 
                     case "POST":
@@ -153,7 +159,9 @@
 
                         if($game["status"] === "playing"){
                             http_response_code(409);//conflict
-                            echo json_encode(["message" => "Game is already in progress"]);
+                            echo json_encode(["message" => "Game is already in progress",
+                                                "game"=> $game               
+                            ]);
                             return;
                         }
 
@@ -163,9 +171,12 @@
                             return;
                         }
 
-                        $rows = $this->gateway->updateGame($id, $data);
+                        $rows = $this->gateway->joinGame($id, $data);
                         http_response_code(200);
-                        echo json_encode(["message" => "Game Updated", "rows" => $rows]);
+                        echo json_encode(["message" => "Game Updated", 
+                                            "rows" => $rows,
+                                            "game" => $game
+                        ]);
                         break;
 
                     default:
@@ -272,6 +283,5 @@
 
             return $errors;
         }
-
     }
 ?>
