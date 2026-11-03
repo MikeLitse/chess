@@ -16,8 +16,6 @@
     $path = trim(str_replace('index.php', '', $rawPath), '/');
     $parts = array_values(array_filter(explode('/', $path)));
 
-    //echo json_encode(["path" => $path, "parts" => $parts, "id_selected" => $parts[1] ?? null]);
-
     if($parts[0] != "chess"){
         //return 404 if any other URL
         http_response_code(404);
