@@ -97,7 +97,7 @@
 
                     case "POST":
                         $data = (array) json_decode(file_get_contents("php://input"), true);
-                        $erros = $this->validateUserPayload($data);
+                        $errors = $this->validateUserPayload($data);
 
                         if(!empty($errors)){
                             http_response_code(422);
@@ -107,7 +107,7 @@
 
                         $newId = $this->gateway->createUser($data);
                         http_response_code(201);
-                        header("Location :/chess/users/$newId");
+                        header("Location: /chess/users/$newId");
                         echo json_encode([
                             "message" => "User Created",
                             "user" => [
@@ -214,7 +214,7 @@
             }
 
             $data = (array) json_decode(file_get_contents("php://input"), true);
-            $errors = $this->validationUserPayload($data);
+            $errors = $this->validateUserPayload($data);
 
             if(!empty($errors)){
                 http_response_code(422);

@@ -1,7 +1,32 @@
-POST(login): curl -X POST http://localhost/chess/   -H "Content-Type: application/json"   -H "Accept: application/json"   -d '{"user": "admin", "pass": "admin", "action": "login"}'
+GET (Diagnostics): curl -L -X GET http://localhost/chess -H "Accept: application/json"
 
-PATCH (user): curl -X PATCH http://localhost/chess/index.php/22 -H "Content-Type: application/json" -H "Accept: application/json" -d '{"user": "admin_updated", "pass": "admin123"}'i
+GET (AllUsers): curl -X GET http://localhost/chess/index.php/users -H "Accept: application/json"
 
-PATCH (game): curl -X PATCH http://localhost/chess/index.php/9   -H "Content-Type: application/json"   -H "Accept: application/json"   -d '{"action": "updategame", "id": 9, "userid": 22}'
+GET (Game): curl -X GET http://localhost/chess/index.php/games/{id} -H "Accept: application/json"
 
-DELETE: curl -X DELETE http://localhost/chess/index.php/20 -H "Accept: application/json"
+POST (Login): curl -X POST http://localhost/chess/index.php/auth/login -H "Content-Type: application/json" -d '{
+    "user": "admin",
+    "pass": "admin"
+  }'
+
+POST (Create User): curl -X POST http://localhost/chess/index.php/users -H "Content-Type: application/json" -d '{
+    "user": "giwrgos",
+    "pass": "litse"
+}'
+
+POST (Create Game): curl -X POST http://localhost/chess/index.php/games -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "color": "white"
+}'
+
+DELETE (User): curl -X DELETE http://localhost/chess/index.php/users/{id} -H "Accept: application/json"
+
+PATCH (Update User): curl -X PATCH http://localhost/chess/index.php/users/{id} -H "Content-Type: application/json" -d '{
+    "user": "player1_new",
+    "pass": "updatedpass123"
+}'
+
+PATCH (Update Game): curl -X PATCH http://localhost/chess/index.php/games/{gameId} -H "Content-Type: application/json" -d '{
+    "userid": {id}
+}'
+

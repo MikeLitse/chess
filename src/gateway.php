@@ -14,7 +14,7 @@
 
             $stmt = $this->conn->query($sql);
 
-            return $stmt->fetchAll(PDO::FETCH_ASSOC ?: []);//assoc array
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);//assoc array
         }
 
         public function getUser(int $id) : array | false{
@@ -175,7 +175,7 @@
             }
 
             $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(":id", $data["id"], PDO::PARAM_INT);
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
             $stmt->bindValue(":userid", $data["userid"], PDO::PARAM_INT);
             $stmt->execute();
 
