@@ -13,16 +13,8 @@
             $sql = "SELECT * FROM users;";
 
             $stmt = $this->conn->query($sql);
-            
-            $data=[];
 
-            while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-            
-                $data[]= $row;
-
-            }
-
-            return $data;//assoc array
+            return $stmt->fetchAll(PDO::FETCH_ASSOC ?: []);//assoc array
         }
 
         public function getUser(int $id) : array | false{
@@ -35,9 +27,7 @@
 
             $stmt->execute();
 
-            $data = $stmt->fetch(PDO::FETCH_ASSOC);//returns assoc
-
-            return $data;
+            return $stmt->fetch(PDO::FETCH_ASSOC);;
 
         }
 
@@ -131,7 +121,7 @@
                 $stmt->bindValue(":idw", $data["id"],PDO::PARAM_INT);
                 $stmt->bindValue(":playerturn", $data["id"], PDO::PARAM_INT);
             }else{
-                $sql = "INSERT INTO games ( black, player_turn)
+                $sql = "INSERT INTO games (black)
                     VALUES (:idb)";
                 $stmt = $this->conn->prepare($sql);
 
@@ -142,32 +132,21 @@
 
             $id = $this->conn->lastInsertId();
 
-            $game = $this->getGame($id);
-
-            if (!$game) {
-                return false;
-            }else{
-                return $game;
-            }
+            return $this->getGame($id);
         }
 
         public function getGame(int $id): array | false{
 
-                $sql="SELECT * FROM games WHERE id = :id";
+            $sql="SELECT * FROM games WHERE id = :id";
 
-                $stmt = $this->conn->prepare($sql);
+            $stmt = $this->conn->prepare($sql);
 
-                $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
 
-                $stmt->execute();
+            $stmt->execute();
 
-                $game = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if(!$game){
-                    return false;
-                }else{
-                    return $game;
-                }    
         }
 
         public function updateGame(int $id, array $data) : int {
