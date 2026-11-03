@@ -12,8 +12,9 @@
     set_error_handler("errorHandler::handleError");
     set_exception_handler("errorHandler::handleException");
 
-    $path = trim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), "/");
-    $parts= array_values(array_filter(explode("/", $path)));
+    $rawPath = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH) ?? '';
+    $path = trim(str_replace('index.php', '', $rawPath), '/');
+    $parts = array_values(array_filter(explode('/', $path)));
 
     //echo json_encode(["path" => $path, "parts" => $parts, "id_selected" => $parts[1] ?? null]);
 
@@ -23,6 +24,15 @@
         exit;
     }
 
+    if (empty($parts) || $parts[0] !== 'chess') {
+        http_response_code(404);
+        echo json_encode(["message" => "Endpoint not found"]);
+        exit;
+    }
+
+    $resource = $parts[1] ?? null;
+    $id = $parts[2] ?? null;
+
     $database = new Database("localhost","chess_db","root","");
 
     $database->getConnection();
@@ -31,13 +41,6 @@
 
     $controller = new Controller($gateway);
 
-    //handle POST id in url
-    if(($parts[1] ?? "") === "index.php") {
-        $id = $parts[2] ?? ($_GET["id"] ?? null);
-    } else {
-        $id = $parts[1] ?? ($_GET["id"] ?? null);
-    }//this can be null wanna might remove later
-
-    $controller -> processRequest($_SERVER["REQUEST_METHOD"], $id);
+    $controller -> processRequest($_SERVER["REQUEST_METHOD"], $resource, $id);
     
 ?>
