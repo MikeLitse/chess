@@ -120,14 +120,24 @@
         }
 
         public function createGame(array $data) : array | false{
-            $sql = "INSERT INTO games ( white, player_turn)
+            
+            $sql= null;
+            
+            if($data["color"] === "white"){
+                $sql = "INSERT INTO games ( white, player_turn)
                     VALUES (:idw, :playerturn)";
-            $stmt = $this->conn->prepare($sql);
+                $stmt = $this->conn->prepare($sql);
 
-            $stmt->bindValue(":idw", $data["id"],PDO::PARAM_INT);
-            //$stmt->bindValue(":idb", $data,PDO::PARAM_INT);
-            $stmt->bindValue(":playerturn", 0, PDO::PARAM_INT);
+                $stmt->bindValue(":idw", $data["id"],PDO::PARAM_INT);
+                $stmt->bindValue(":playerturn", $data["id"], PDO::PARAM_INT);
+            }else{
+                $sql = "INSERT INTO games ( black, player_turn)
+                    VALUES (:idb)";
+                $stmt = $this->conn->prepare($sql);
 
+                $stmt->bindValue(":idb", $data["id"],PDO::PARAM_INT);
+            }
+            
             $stmt->execute();
 
             $id = $this->conn->lastInsertId();
@@ -157,9 +167,7 @@
                     return false;
                 }else{
                     return $game;
-                }
-
-                
+                }    
         }
 
         public function updateGame(int $id, array $data) : int {

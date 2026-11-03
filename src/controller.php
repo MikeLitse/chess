@@ -82,7 +82,7 @@
 
                         $rows= $this->gateway->updateUser($user, $data);
 
-                        http_response_code(201);
+                        http_response_code(200);
 
                         echo json_encode([
                             "message" => "User $id updated",
@@ -95,6 +95,11 @@
                         if(!$game){
                             http_response_code(404);
                             echo json_encode(["message" => "Game Not Found"]);//array that turns into json
+
+                            return;
+                        }
+                        if($game["status"] === "playing"){
+                            echo json_encode(["message" => "Game Is Already Playing"]);
 
                             return;
                         }
@@ -265,6 +270,9 @@
             if ($action === "creategame") {
                 if (empty($data["id"])) {
                     $errors[] = "User Id required";
+                }
+                if(empty($data["color"])){
+                    $errors[] = "Color required";
                 }
             }
             if($action === "updategame"){

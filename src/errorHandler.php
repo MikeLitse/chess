@@ -1,9 +1,7 @@
 <?php
     class ErrorHandler{
         public static function handleException(Throwable $exception) : void{
-            //to hanlde 500
-            //return json
-
+    
             http_response_code(500);
 
             echo json_encode([

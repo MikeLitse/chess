@@ -23,8 +23,6 @@
         exit;
     }
 
-    //echo json_encode(["id" => $id]);
-
     $database = new Database("localhost","chess_db","root","");
 
     $database->getConnection();
