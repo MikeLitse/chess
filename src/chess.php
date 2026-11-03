@@ -1,18 +1,18 @@
 <?php
     class chess{
-        private array $baord = [];
+        private array $board = [];
         private string $activeColor;
         private string $castling;
         private string $enPassant;
         private int $halfmoveClock;
         private int $fullmoveNumber;
 
-        public function __construc(string $fen){
+        public function __construct(string $fen){
             $this->loadFromFen($fen);
         }
 
         public function loadFromFen(string $fen) : void {
-            $parts = exploed(' ', trim($fen));
+            $parts = explode(' ', trim($fen));
 
             if(count($parts) !== 6){
                 
@@ -65,7 +65,7 @@
                     }else{
                         if($emptyCount > 0){
                             $rowStr .= $emptyCount;
-                            $emptyCounty = 0;
+                            $emptyCount = 0;
                         }
                         $rowStr .= $square;
                     }
@@ -94,7 +94,7 @@
         public function move(string $from, string $to) : bool {
             
             [$fromRow, $fromCol] = $this->squareToCoordinates($from);
-            [$toRow, $toCol] = $this->squareToCoordinates($from);
+            [$toRow, $toCol] = $this->squareToCoordinates($to);
 
             $piece = $this->board[$fromRow][$fromCol];
 
@@ -120,7 +120,7 @@
 
             $this->enPassant = "-";
 
-            if(strtoupper($piece) === "P" && abs($fromRow $toRow) === 2){
+            if(strtoupper($piece) === "P" && abs($fromRow - $toRow) === 2){
                 $skippedRow = ($fromRow + $toRow) / 2;
                 $this->enPassant = $this->coordinatesToSquare((int) $skippedRow, $fromCol);
             }
