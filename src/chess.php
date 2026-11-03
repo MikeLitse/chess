@@ -28,7 +28,7 @@
             foreach($ranks as $rankStr){
                 $row = [];
 
-                for($i = 0; $i < strlen($ranksStr); $i++){
+                for($i = 0; $i < strlen($rankStr); $i++){
                     $char = $rankStr[$i];
 
                     if(is_numeric($char)){
@@ -50,5 +50,19 @@
             $this->halfmoveClock = (int) $half;
             $this->fullmoveNumber= (int) $full;
         }
+
+        public function toFen() : string {
+            $fenRows = [];
+
+            foreach ($this->board as $row){
+                
+                $rowStr = "";
+                $emptyCount = 0;
+
+                foreach ($row as $square){
+                    if($square === "")
+                }
+            }
+        } 
     }
 ?>
