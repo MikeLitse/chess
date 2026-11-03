@@ -4,10 +4,7 @@ GET (AllUsers): curl -X GET http://localhost/chess/index.php/users -H "Accept: a
 
 GET (Game): curl -X GET http://localhost/chess/index.php/games/{id} -H "Accept: application/json"
 
-POST (Login): curl -X POST http://localhost/chess/index.php/auth/login -H "Content-Type: application/json" -d '{
-    "user": "admin",
-    "pass": "admin"
-  }'
+POST (Login): curl -X POST http://localhost/chess/index.php/auth/login -H "Content-Type: application/json" -d '{"user": "admin", "pass": "admin"}'
 
 POST (Create User): curl -X POST http://localhost/chess/index.php/users -H "Content-Type: application/json" -d '{
     "user": "giwrgos",
