@@ -60,9 +60,98 @@
                 $emptyCount = 0;
 
                 foreach ($row as $square){
-                    if($square === "")
+                    if($square === ""){
+                        $emptyCount++;
+                    }else{
+                        if($emptyCount > 0){
+                            $rowStr .= $emptyCount;
+                            $emptyCounty = 0;
+                        }
+                        $rowStr .= $square;
+                    }
                 }
+
+                if($emptyCount > 0){
+                    $rowStr .= $emptyCount;
+                }
+
+                $fenRows[] = $rowStr;
             }
+
+            $placement = implode("/", $fenRows);
+
+            return sprintf(
+                "%s %s %s %s %d %d",
+                $placement,
+                $this->activeColor,
+                $this->castling,
+                $this->enPassant,
+                $this->halfmoveClock,
+                $this->fullmoveNumber
+            );
+        }
+        
+        public function move(string $from, string $to) : bool {
+            
+            [$fromRow, $fromCol] = $this->squareToCoordinates($from);
+            [$toRow, $toCol] = $this->squareToCoordinates($from);
+
+            $piece = $this->board[$fromRow][$fromCol];
+
+            if($piece === ""){
+                return false;
+            }
+
+            $isWhitePiece = ctype_upper($piece);
+
+            if(($this->activeColor === "w" && !$isWhitePiece) || ($this->activeColor === "b" && $isWhitePiece)){
+                return false;
+            }
+
+            $targetPiece = $this->board[$toRow][$toCol];
+            $this->board[$toRow][$toCol] = $piece;
+            $this->board[$fromRow][$fromCol] = "";
+
+            if(strtoupper($piece) === "P" || $targetPiece !== ""){
+                $this->halfmoveClock = 0;
+            }else{
+                $this->halfmoveClock++;
+            }
+
+            $this->enPassant = "-";
+
+            if(strtoupper($piece) === "P" && abs($fromRow $toRow) === 2){
+                $skippedRow = ($fromRow + $toRow) / 2;
+                $this->enPassant = $this->coordinatesToSquare((int) $skippedRow, $fromCol);
+            }
+
+            if ($this->activeColor === 'w') {
+                $this->activeColor = 'b';
+            } else {
+                $this->activeColor = 'w';
+                $this->fullmoveNumber++;
+            }
+
+            return true;
         } 
+
+        private function squareToCoordinates(string $square): array {
+            $file = ord(strtolower($square[0])) - ord('a'); 
+            $rank = (int)$square[1];                         
+            $row = 8 - $rank;                                
+
+            return [$row, $file];
+        }
+
+        private function coordinatesToSquare(int $row, int $col): string {
+            $file = chr(ord('a') + $col);
+            $rank = 8 - $row;
+
+            return "$file$rank";
+        }
+
+        public function getActiveColor(): string {
+            return $this->activeColor;
+        }
     }
 ?>
