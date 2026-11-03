@@ -36,6 +36,9 @@
                 case "auth":
                     $this->handleAuth($method, $id);
                     break;
+                case "chess":
+                    $this->handleChess($method, $id);
+                    break;
                 case null:
                 case "":
                     $this->handleRoot($method);
