@@ -39,6 +39,9 @@
                 case "chess":
                     //$this->handleChess($method, $id);
                     break;
+                case "matchHistory":
+                    //$this->handleMatchHistory
+                    break;
                 case null:
                 case "":
                     $this->handleRoot($method);
