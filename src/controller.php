@@ -11,7 +11,7 @@
             $this->logFile = __DIR__ . '/last_request.txt';
         }
 
-        public function processRequest(string $method, ?string $resource, ?int $id) : void {
+        public function processRequest(string $method, ?string $resource, ?string $id) : void {
             
             //save last curl
             $fullUrl = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on" ? "https" : "http")
@@ -292,7 +292,7 @@
             }
         }
 
-        /*public function handleChess(string $method, ?string $subres, int $id ){
+        public function handleChess(string $method, ?string $subres, int $id ){
             $game= $this->gateway->getGame($id);
 
             if(!$game){
@@ -300,16 +300,15 @@
                 echo json_encode(["message" => "Game doesnt exist"]);
             }
 
-            if($subres === "forfeit"){
-
-            }
-
-            if($subres === "move"){
-
+            switch($method){
+                case "POST":
+                    break;//TODO probably make this for move
+                case "PATCH":
+                    break;//TODO probably make this for forfeit?
             }
 
         }
-        */
+        
         private function validateUserPayload(array $data) : array{
             $errors = [];
             

@@ -158,7 +158,7 @@
 
             $sql = null;
             
-            if (empty($gamecurr["black"])) {
+            if(empty($gamecurr["black"])) {
                 $sql = "UPDATE games
                         SET black = :userid,
                             status = 'playing'
@@ -170,8 +170,6 @@
                             status = 'playing'
                         WHERE id = :id";
                 
-            } else {
-                return 0;
             }
 
             $stmt = $this->conn->prepare($sql);
@@ -184,7 +182,18 @@
 
         public function getAllGames() : array {
 
-            $sql = "SELECT * FROM games";
+            $sql = "SELECT * FROM games
+                    WHERE status='waiting'";
+
+            $stmt = $this->conn->query($sql);
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        public function getMatchHistory() : array {
+
+            $sql = "SELECT * FROM games
+                    WHERE status='finished'";
 
             $stmt = $this->conn->query($sql);
             
