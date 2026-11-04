@@ -181,6 +181,15 @@
 
             return $stmt->rowCount();
         }
+
+        public function getAllGames() : array {
+
+            $sql = "SELECT * FROM games";
+
+            $stmt = $this->conn->query($sql);
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
         public function quitGame(int $id, array $data){
 
             

@@ -11,7 +11,7 @@
             $this->logFile = __DIR__ . '/last_request.txt';
         }
 
-        public function processRequest(string $method, ?string $resource, ?string $id) : void {
+        public function processRequest(string $method, ?string $resource, ?int $id) : void {
             
             //save last curl
             $fullUrl = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on" ? "https" : "http")
@@ -37,7 +37,7 @@
                     $this->handleAuth($method, $id);
                     break;
                 case "chess":
-                    $this->handleChess($method, $id);
+                    //$this->handleChess($method, $id);
                     break;
                 case null:
                 case "":
@@ -175,10 +175,19 @@
                         }
 
                         $rows = $this->gateway->joinGame($id, $data);
+
+                        if($rows === 0){
+                            http_response_code(409);
+                            echo json_encode(["message" => "Game is not joinable"]);
+                            return;
+                        }
+
+                        $updatedGame = $this->gateway->getGame($id);
+
                         http_response_code(200);
                         echo json_encode(["message" => "Game Updated", 
                                             "rows" => $rows,
-                                            "game" => $game
+                                            "game" => $updatedGame
                         ]);
                         break;
 
@@ -188,30 +197,39 @@
                         break;
                 }
             }else{
-                if($method === "POST"){
-                    $data = (array) json_decode(file_get_contents("php://input"), true);
+                switch($method){
+                    case "POST":
+                        $data = (array) json_decode(file_get_contents("php://input"), true);
 
-                    if(empty($data["id"]) || empty($data["color"])){
-                        http_response_code(422);
-                        echo json_encode(["errors" => "userid and color are required"]);
-                        return;
-                    }
+                        if(empty($data["id"]) || empty($data["color"])){
+                            http_response_code(422);
+                            echo json_encode(["errors" => "userid and color are required"]);
+                            return;
+                        }
 
-                    $game = $this->gateway->createGame($data);
+                        $game = $this->gateway->createGame($data);
 
-                    if(!empty($game)){
+                        if(empty($game)){
+                            http_response_code(500);
+                            echo json_encode(["message" => "Could not create game"]);
+                            return;
+                        }
+
                         http_response_code(201);
                         header("Location: /chess/games/" . $game["id"]);
                         echo json_encode(["message" => "Game Created", "game" => $game]);
-                        return;
-                    }else{
-                        http_response_code(500);
-                        echo json_encode(["message" => "Could not create game"]);
-                        return;
-                    }
-                }else{
-                    http_response_code(405);
-                    header("Allow: POST");
+                        break;
+
+                    case "GET":
+                        $games = $this->gateway->getAllGames();
+                        http_response_code(200);
+                        echo json_encode($games);
+                        break;
+
+                    default:
+                        http_response_code(405);
+                        header("Allow: GET, POST");
+                        break;
                 }
             }
         }
@@ -274,6 +292,24 @@
             }
         }
 
+        /*public function handleChess(string $method, ?string $subres, int $id ){
+            $game= $this->gateway->getGame($id);
+
+            if(!$game){
+                http_response_code(404);
+                echo json_encode(["message" => "Game doesnt exist"]);
+            }
+
+            if($subres === "forfeit"){
+
+            }
+
+            if($subres === "move"){
+
+            }
+
+        }
+        */
         private function validateUserPayload(array $data) : array{
             $errors = [];
             
