@@ -7,7 +7,7 @@
     class Controller{
 
         private string $logFile;
-        public function __construct(private Gateway $gateway){
+        public function __construct(private Gateway $gateway, private Chess $chess){
             $this->logFile = __DIR__ . '/last_request.txt';
         }
 
@@ -37,10 +37,10 @@
                     $this->handleAuth($method, $id);
                     break;
                 case "chess":
-                    //$this->handleChess($method, $id);
+                    $this->handleChess($method, $id);
                     break;
                 case "matchHistory":
-                    //$this->handleMatchHistory
+                    $this->handleMatchHistory($method);
                     break;
                 case null:
                 case "":
@@ -295,16 +295,20 @@
             }
         }
 
-        public function handleChess(string $method, ?string $subres, int $id ){
+        public function handleChess(string $method, int $id ){
             $game= $this->gateway->getGame($id);
 
+            
             if(!$game){
                 http_response_code(404);
                 echo json_encode(["message" => "Game doesnt exist"]);
             }
 
+            $data = (array) json_decode(file_get_contents("php://input"), true);
+
             switch($method){
                 case "POST":
+                    $this->chess->loadFromFen();
                     break;//TODO probably make this for move
                 case "PATCH":
                     break;//TODO probably make this for forfeit?
@@ -312,6 +316,10 @@
 
         }
         
+        public function handleMatchHistory(string $method){
+            
+        }
+
         private function validateUserPayload(array $data) : array{
             $errors = [];
             

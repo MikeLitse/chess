@@ -201,7 +201,18 @@
         }
         public function quitGame(int $id, array $data){
 
-            
+            $sql = "UPDATE games
+                    SET status='finished'
+                    WHERE id = :id"
+            ;
+
+            $stmt = $this->conn->prepare($sql);
+
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            return $stmt->rowCount();
 
         }
 
