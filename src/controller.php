@@ -295,10 +295,14 @@
             }
         }
 
-        public function handleChess(string $method, int $id ){
+        public function handleChess(string $method, int $id){
+            //$id === userId
+            if(empty($id)){
+                http_response_code(404);
+                echo json_encode(["message" => "UserID required"]);
+            }
             $game= $this->gateway->getGame($id);
 
-            
             if(!$game){
                 http_response_code(404);
                 echo json_encode(["message" => "Game doesnt exist"]);
@@ -308,7 +312,25 @@
 
             switch($method){
                 case "POST":
-                    $this->chess->loadFromFen();
+                    $data = (array) json_decode(file_get_contents("php://input"), true);
+
+                    if($data)
+
+                    $move = $this->chess->move($data["from"], $data["to"]);
+
+                    if(!$move){
+                        http_response_code(400);
+                        echo json_encode([
+                            "message" => "Not valid move"
+                        ]);
+                        return;
+                    }
+                    http_response_code(200);
+                    echo json_encode([
+                        "message" => "Moved Played",
+                        
+                    ]);
+                        
                     break;//TODO probably make this for move
                 case "PATCH":
                     break;//TODO probably make this for forfeit?

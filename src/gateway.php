@@ -199,7 +199,7 @@
             
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
-        public function quitGame(int $id, array $data){
+        public function endGame(int $id, array $data) : int{
 
             $sql = "UPDATE games
                     SET status='finished'
@@ -214,6 +214,38 @@
 
             return $stmt->rowCount();
 
+        }
+
+        public function move(int $id, string $fen) : int{
+
+            $sql = "SELECT * FROM games
+                    WHERE status='playing', id = :id
+                    SET board = :board"
+            ;
+
+            $stmt = $this->conn->prepare($sql);
+
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+            $stmt->bindValue(":board", $fen, PDO::PARAM_STR);
+
+            $stmt->execute();
+
+            return $stmt->rowCount();
+
+        }
+
+        public function getGameByUser(int $id) : int {
+
+            $sql = "SELECT id FROM games
+                    WHERE white = :id
+                    OR 
+                    WHERE black =: id"
+            ;
+
+            $stmt =$this->conn->query($sql);
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+
+            return $stmt->fetch();
         }
 
     }
