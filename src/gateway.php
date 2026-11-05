@@ -72,7 +72,7 @@
 
         }
         
-        public function deleteUser(string $id) : int{
+        public function deleteUser(int $id) : int{
 
             $sql = "DELETE FROM users WHERE id=:id";
 
@@ -149,7 +149,7 @@
 
         }
 
-        public function joinGame(int $id, array $data) : int {
+        public function joinGame(int $id, array $data) : int | false{
             $gamecurr = $this->getGame($id);
             
             if (!$gamecurr) {
@@ -173,12 +173,16 @@
                 
             }
 
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
-            $stmt->bindValue(":userid", $data["userid"], PDO::PARAM_INT);
-            $stmt->execute();
+            if($sql !== null){
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+                $stmt->bindValue(":userid", $data["userid"], PDO::PARAM_INT);
+                $stmt->execute();
 
-            return $stmt->rowCount();
+                return $stmt->rowCount();
+            }
+
+            return false;
         }
 
         public function getAllGames() : array {
@@ -242,7 +246,7 @@
                     WHERE (white = :whiteid
                     OR 
                     black = :blackid)
-                    AND status ='playing'"
+                    AND status ='playing'" 
             ;
 
             $stmt =$this->conn->prepare($sql);
@@ -252,6 +256,37 @@
             $stmt->execute();
 
             return $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+
+        public function resignGame(array $game, int $userid) : int{
+            
+            if($game["white"] === $userid){
+
+                $sql = "UPDATE games
+                        SET status = 'finished', result = :userid
+                        WHERE id = :id"
+                ;
+
+                $stmt = $this->conn->prepare($sql);
+
+                $stmt->bindValue(":userid", $game["black"], PDO::PARAM_INT);
+                $stmt->bindValue(":id", $game["id"], PDO::PARAM_INT);
+
+            }else{
+                $sql = "UPDATE games
+                        SET status = 'finished', result = :userid
+                        WHERE id = :id"
+                ;
+
+                $stmt = $this->conn->prepare($sql);
+
+                $stmt->bindValue(":userid", $game["white"], PDO::PARAM_INT);
+                $stmt->bindValue(":id", $game["id"], PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+
+            return $stmt->rowCount();
         }
 
     }

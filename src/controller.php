@@ -12,7 +12,7 @@
         }
 
         public function processRequest(string $method, ?string $resource, ?string $id) : void {
-            
+            //$id can be a string in auth/login $id==login
             //save last curl
             $fullUrl = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on" ? "https" : "http")
             . "://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
@@ -26,23 +26,21 @@
                 );
             }
 
-            $id = $id !== null ? (int)$id : null;
-
             switch($resource){
                 case "users":
-                    $this->handleUsers($method, $id);
+                    $this->handleUsers($method, $id !== null ? (int)$id : null);
                     break;
                 case "games":
-                    $this->handleGames($method, $id);
+                    $this->handleGames($method, $id !== null ? (int)$id : null);
                     break;
                 case "auth":
                     $this->handleAuth($method, $id);
                     break;
                 case "play":
-                    $this->handlePlay($method, $id);
+                    $this->handlePlay($method,$id !== null ? (int)$id : null);
                     break;
                 case "matchHistory":
-                    $this->handleMatchHistory($method);
+                    $this->handleMatchHistory($method);//TODO
                     break;
                 case null:
                 case "":
@@ -86,7 +84,7 @@
                                         ]);
                         break;
                     case "DELETE":
-                        $rows = $this->gateway->deleteUser((string)$id);
+                        $rows = $this->gateway->deleteUser($id);
                         http_response_code(200);
                         echo json_encode(["message" => "User deleted", 
                                         "rows" => $rows,
@@ -181,7 +179,7 @@
 
                         $rows = $this->gateway->joinGame($id, $data);
 
-                        if($rows === 0){
+                        if(!$rows){
                             http_response_code(409);
                             echo json_encode(["message" => "Game is not joinable"]);
                             return;
@@ -204,6 +202,7 @@
             }else{
                 switch($method){
                     case "POST":
+                        //TODO changes this so a user cannot be in multiple games at once
                         $data = (array) json_decode(file_get_contents("php://input"), true);
 
                         if(empty($data["id"]) || empty($data["color"])){
@@ -297,15 +296,22 @@
             }
         }
 
-        public function handlePlay(string $method, int $id){
+        public function handlePlay(string $method, ?int $id){
             //$id === userId
-            if(empty($id)){
+            if($id === null){
+                $data = (array) json_decode(file_get_contents("php://input"), true);
+                $userId= $data["userid"];
+            }else{
+                $userId=$id;
+            }
+
+            if(empty($userId)){
                 http_response_code(400);
                 echo json_encode(["message" => "UserID required"]);
                 return;
             }
             
-            $game= $this->gateway->getGameByUser($id);
+            $game= $this->gateway->getGameByUser($userId);
 
             if(!$game){
                 http_response_code(404);
@@ -313,7 +319,7 @@
                 return;
             }
 
-            if($game["player_turn"] !== $id){
+            if($game["player_turn"] !== $userId){
                 http_response_code(403);
                 echo json_encode(["message" => "Not this user's turn"]);
                 return;
@@ -321,7 +327,6 @@
 
             switch($method){
                 case "POST":
-                    $data = (array) json_decode(file_get_contents("php://input"), true);
 
                     if(
                         !is_array($data) || $data["from"] === null || $data["to"] === null ||
@@ -367,9 +372,33 @@
                         "player_turn" => $nextPlayerTurn
                     ]);
                         
-                    break;//TODO probably make this for move
+                    break;
                 case "PATCH":
-                    break;//TODO probably make this for forfeit?
+                    $data = (array) json_decode(file_get_contents("php://input"), true);
+
+                    if($data["action"] === null){
+                        http_response_code(422);
+                        echo json_encode(["message" => "action is required"]);
+                        return;
+                    }
+
+                    if($data["action"] === "resign"){
+                        $game = $this->gateway->getGameByUser($id);
+
+                        $rows = $this->gateway->resignGame($game,$id);
+
+                        http_response_code(200);
+                        echo json_encode([
+                            "message" => "Resigned, Game Terminated",
+                            "Rows Affected" => $rows 
+                        ]);
+
+                    }else{
+                        http_response_code(422);
+                        echo json_encode(["message" => "Not valid action"]);
+                        return;
+                    }
+                    break;
             }
 
         }
