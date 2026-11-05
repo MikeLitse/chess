@@ -7,7 +7,7 @@
     class Controller{
 
         private string $logFile;
-        public function __construct(private Gateway $gateway, private Chess $chess){
+        public function __construct(private Gateway $gateway){
             $this->logFile = __DIR__ . '/last_request.txt';
         }
 
@@ -26,6 +26,8 @@
                 );
             }
 
+            $id = $id !== null ? (int)$id : null;
+
             switch($resource){
                 case "users":
                     $this->handleUsers($method, $id);
@@ -36,8 +38,8 @@
                 case "auth":
                     $this->handleAuth($method, $id);
                     break;
-                case "chess":
-                    $this->handleChess($method, $id);
+                case "play":
+                    $this->handlePlay($method, $id);
                     break;
                 case "matchHistory":
                     $this->handleMatchHistory($method);
@@ -295,40 +297,74 @@
             }
         }
 
-        public function handleChess(string $method, int $id){
+        public function handlePlay(string $method, int $id){
             //$id === userId
             if(empty($id)){
-                http_response_code(404);
+                http_response_code(400);
                 echo json_encode(["message" => "UserID required"]);
+                return;
             }
-            $game= $this->gateway->getGame($id);
+            
+            $game= $this->gateway->getGameByUser($id);
 
             if(!$game){
                 http_response_code(404);
-                echo json_encode(["message" => "Game doesnt exist"]);
+                echo json_encode(["message" => "User isnt participating in any game"]);
+                return;
             }
 
-            $data = (array) json_decode(file_get_contents("php://input"), true);
+            if($game["player_turn"] !== $id){
+                http_response_code(403);
+                echo json_encode(["message" => "Not this user's turn"]);
+                return;
+            }
 
             switch($method){
                 case "POST":
                     $data = (array) json_decode(file_get_contents("php://input"), true);
 
-                    if($data)
+                    if(
+                        !is_array($data) || $data["from"] === null || $data["to"] === null ||
+                        !preg_match('/^[a-h][1-8]$/', $data["from"]) ||
+                        !preg_match('/^[a-h][1-8]$/', $data["to"])
+                    ){
+                        http_response_code(422);
+                        echo json_encode([
+                            "message" => "Move is required"
+                        ]);
+                        return;
+                    }
 
-                    $move = $this->chess->move($data["from"], $data["to"]);
+                    $chess = new Chess($game["fen"]);
+                    
+                    $move = $chess->move($data["from"], $data["to"]);
 
                     if(!$move){
-                        http_response_code(400);
+                        http_response_code(422);
                         echo json_encode([
                             "message" => "Not valid move"
                         ]);
                         return;
                     }
+
+                    $newFen = $chess->toFen();
+                    $nextColor = $chess->getActiveColor();
+                    $nextPlayerTurn = ($nextColor === "w" ? $game["white"] : $game["black"]);
+
+                    $updated = $this->gateway->updateGameState($game["id"], $newFen ,$nextPlayerTurn);
+
+                    if($updated === 0){
+                        http_response_code(500);
+                        echo json_encode(["message" => "Failed to save move"]);
+                        return;
+                    }
+
+                    
                     http_response_code(200);
                     echo json_encode([
                         "message" => "Moved Played",
-                        
+                        "fen" => $newFen,
+                        "player_turn" => $nextPlayerTurn
                     ]);
                         
                     break;//TODO probably make this for move

@@ -17,13 +17,14 @@
                 $pdo= new PDO($dsn, $this->user, $this->password,
                             [
                                 PDO::ATTR_EMULATE_PREPARES => false,
-                                PDO::ATTR_STRINGIFY_FETCHES =>false
+                                PDO::ATTR_STRINGIFY_FETCHES => false
                             ]);
                 
                 return $pdo;
             }catch(PDOException $e){
                 http_response_code(500);
                 echo json_encode(["message" => "Internal Server Error"]);
+                exit;
             }
         
         }

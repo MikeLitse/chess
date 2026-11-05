@@ -167,7 +167,8 @@
             } elseif (empty($gamecurr["white"])) {
                 $sql = "UPDATE games
                         SET white = :userid,
-                            status = 'playing'
+                            status = 'playing',
+                            player_turn = :userid
                         WHERE id = :id";
                 
             }
@@ -216,17 +217,18 @@
 
         }
 
-        public function move(int $id, string $fen) : int{
+        public function updateGameState(int $id, string $fen, int $nextTurn) : int{
 
-            $sql = "SELECT * FROM games
-                    WHERE status='playing', id = :id
-                    SET board = :board"
+            $sql = "UPDATE games
+                    SET fen = :board, player_turn = :player
+                    WHERE status = 'playing' AND id = :id"
             ;
 
             $stmt = $this->conn->prepare($sql);
 
             $stmt->bindValue(":id", $id, PDO::PARAM_INT);
             $stmt->bindValue(":board", $fen, PDO::PARAM_STR);
+            $stmt->bindValue(":player", $nextTurn, PDO::PARAM_INT);
 
             $stmt->execute();
 
@@ -234,18 +236,22 @@
 
         }
 
-        public function getGameByUser(int $id) : int {
+        public function getGameByUser(int $id) : array | false{
 
-            $sql = "SELECT id FROM games
-                    WHERE white = :id
+            $sql = "SELECT * FROM games
+                    WHERE (white = :whiteid
                     OR 
-                    WHERE black =: id"
+                    black = :blackid)
+                    AND status ='playing'"
             ;
 
-            $stmt =$this->conn->query($sql);
-            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+            $stmt =$this->conn->prepare($sql);
+            $stmt->bindValue(":whiteid", $id, PDO::PARAM_INT);
+            $stmt->bindValue(":blackid", $id, PDO::PARAM_INT);
 
-            return $stmt->fetch();
+            $stmt->execute();
+
+            return $stmt->fetch(PDO::FETCH_ASSOC);
         }
 
     }
