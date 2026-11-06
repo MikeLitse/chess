@@ -102,13 +102,89 @@
                 return false;
             }
 
-            $isWhitePiece = ctype_upper($piece);
-
-            if(($this->activeColor === "w" && !$isWhitePiece) || ($this->activeColor === "b" && $isWhitePiece)){
+            if($fromRow === $toRow && $fromCol === $toCol){
                 return false;
             }
 
+            $isWhitePiece = ctype_upper($piece);//returns true if its upper
+
+            //check player turn
+            if (($this->activeColor === "w" && !$isWhitePiece) || ($this->activeColor === "b" && $isWhitePiece)) {
+                return false;
+            } 
+            
             $targetPiece = $this->board[$toRow][$toCol];
+
+            if ($targetPiece !== "") {
+                $isTargetWhite = ctype_upper($targetPiece);
+                if ($isWhitePiece === $isTargetWhite) {
+                    return false;
+                }
+            }
+
+            $dRow = $toRow - $fromRow;
+            $dCol = $toCol - $fromCol;
+            $absRow = abs($dRow);// === |$toRow - $fromRow|
+            $absCol = abs($dCol);// === |$toCol - $fromCol|
+
+            switch(strtoupper($piece)){
+                case "P":
+                    $dir = $isWhitePiece ? -1 : 1;
+                    $startRow = $isWhitePiece ? 6 : 1;
+
+                    if($dCol === 0 && $dRow === $dir && $targetPiece ===""){
+                        break;
+                    }
+
+                    if($dCol === 0 && $fromRow === $startRow && $dRow === 2 * $dir){
+                        $intermediateRow = $fromRow + $dir;
+                        if($this->board[$intermediateRow][$fromCol] === "" && $targetPiece === ""){
+                            break;
+                        }
+                    }
+
+                    if ($absCol === 1 && $dRow === $dir && $targetPiece !== "") {
+                        break;
+                    }
+
+                    if ($absCol === 1 && $dRow === $dir && $this->enPassant === $to) {
+                        $capturedPawnRow = $fromRow;
+                        $this->board[$capturedPawnRow][$toCol] = "";
+                        break;
+                    }
+
+                    return false;
+
+                case "R":
+                    if(($dRow !==0 && $dCol !==0) || (!$this->isPathClear($fromRow, $fromCol, $toRow, $toCol))){
+                        return false;
+                    }
+                    break;
+                case "N":
+                    if(!(($absRow === 1 && $absCol === 2) || ($absRow === 2 && $absCol === 1))){
+                        return false;
+                    }
+                    break;
+                case "B":
+                    if($absRow !== $absCol || !$this->isPathClear($fromRow, $fromCol, $toRow, $toCol)){
+                        return false;
+                    }
+                    break;
+                case "Q":
+                    $isDiagonal = ($absRow === $absCol);
+                    $isStraight = ($dRow === 0 || $dCol === 0);
+                    
+                    if((!$isDiagonal && !$isStraight) || !$this->isPathClear($fromRow, $fromCol, $toRow, $toCol)){
+                        return false;
+                    }
+                    break;
+                case "K":
+                    if($absRow >1 || $absCol > 1){
+                        return false;
+                    }
+                    break;
+            }
+
             $this->board[$toRow][$toCol] = $piece;
             $this->board[$fromRow][$fromCol] = "";
 
@@ -152,6 +228,26 @@
 
         public function getActiveColor(): string {
             return $this->activeColor;
+        }
+
+        private function isPathClear(int $fromRow, int $fromCol, int $toRow, int $toCol) : bool{
+
+            $stepRow = $toRow <=> $fromRow;// -1, 0, 1 
+            $stepCol = $toCol <=> $fromCol;// -1, 0, 1 
+
+            $currRow = $fromRow + $stepRow;
+            $currCol = $fromCol + $stepCol;
+
+            while($currRow !== $toRow || $currCol !== $toCol){
+                if($this->board[$currRow][$currCol] !== ""){
+                    return false;
+                }
+                $currRow += $stepRow;
+                $currCol += $stepCol;
+            }
+
+            return true;
+
         }
     }
 ?>
