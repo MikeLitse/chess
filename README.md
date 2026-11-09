@@ -4,4 +4,5 @@ This is an RESTful API that serves a chess game where two human players can play
 ## API ENDPOINTS
 | Method | URL | Description |
 | :--- | :--- | :--- |
+| 'POST' | 'http://localhost/chess/index.php/auth/login' | {"user": "admin", "pass": "admin"} |
 | 'POST' | 'http://localhost/chess/index.php/auth/login' | Login |
