@@ -76,6 +76,11 @@
                             return;
                             }
 
+                        if(empty($data["user"]) || empty($data["pass"])){
+                            http_response_code(400);
+                            echo json_encode(["message" => "Didnt include username or password"]);
+                        }
+
                         $rows = $this->gateway->updateUser($user, $data);
                         http_response_code(200);
                         echo json_encode(["message" => "User update", 
@@ -203,6 +208,7 @@
                 switch($method){
                     case "POST":
                         //TODO changes this so a user cannot be in multiple games at once
+                        //if userid exists in ongoing game cannot create new game
                         $data = (array) json_decode(file_get_contents("php://input"), true);
 
                         if(empty($data["id"]) || empty($data["color"])){
