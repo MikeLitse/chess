@@ -23,7 +23,7 @@ PATCH (Update User): curl -X PATCH http://localhost/chess/index.php/users/{id} -
     "pass": "updatedpass123"
 }'
 
-PATCH (Update Game): curl -X PATCH http://localhost/chess/index.php/games/{gameId} -H "Content-Type: application/json" -d '{
+PATCH (Update Game, Join): curl -X PATCH http://localhost/chess/index.php/games/{gameId} -H "Content-Type: application/json" -d '{
     "userid": {id}
 }'
 
