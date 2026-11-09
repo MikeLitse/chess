@@ -14,6 +14,6 @@ This is an RESTful API that serves a chess game where two human players can play
 | `POST` | `/games` | `{"id":1,"color":"white"}` | Create a new game |
 | `GET` | `/games/{id}` | — | Get a single game |
 | `PATCH` | `/games/{id}` | `{"userid":2}` | Join a game |
-| `POST` | `/play/{userId}` | `{"from":"e2","to":"e4"}` | Εκτέλεση κίνησης (με `userId` στο URL) |
+| `POST` | `/play` | `{"userid": 1, "from":"e2","to":"e4"}` | Play move |
 | `PATCH` | `/play/{userId}` | `{"action":"resign"}` | Player resign |
-| `*` | `/matchHistory` | — | *TODO: MATCH HISTORYSSS* |
+| `*` | `/matchHistory` | — | *TODO: MATCH HISTORY* |
