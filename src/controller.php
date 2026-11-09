@@ -298,20 +298,21 @@
 
         public function handlePlay(string $method, ?int $id){
             //$id === userId
-            if($id === null){
-                $data = (array) json_decode(file_get_contents("php://input"), true);
-                $userId= $data["userid"];
-            }else{
-                $userId=$id;
-            }
-
-            if(empty($userId)){
+            if(empty($id)){
                 http_response_code(400);
                 echo json_encode(["message" => "UserID required"]);
                 return;
             }
-            
-            $game= $this->gateway->getGameByUser($userId);
+
+            $data = (array) json_decode(file_get_contents("php://input"), true);
+
+            if(empty($data)){
+                http_response_code(400);
+                echo json_encode(["message" => "Missing information on payload"]);
+                return;
+            }
+
+            $game= $this->gateway->getGameByUser($id);
 
             if(!$game){
                 http_response_code(404);
@@ -319,7 +320,7 @@
                 return;
             }
 
-            if($game["player_turn"] !== $userId){
+            if($game["player_turn"] !== $id){
                 http_response_code(403);
                 echo json_encode(["message" => "Not this user's turn"]);
                 return;
@@ -374,8 +375,6 @@
                         
                     break;
                 case "PATCH":
-                    $data = (array) json_decode(file_get_contents("php://input"), true);
-
                     if($data["action"] === null){
                         http_response_code(422);
                         echo json_encode(["message" => "action is required"]);
@@ -383,8 +382,6 @@
                     }
 
                     if($data["action"] === "resign"){
-                        $game = $this->gateway->getGameByUser($id);
-
                         $rows = $this->gateway->resignGame($game,$id);
 
                         http_response_code(200);
@@ -398,6 +395,10 @@
                         echo json_encode(["message" => "Not valid action"]);
                         return;
                     }
+                    break;
+                default:
+                    http_response_code(405);
+                    header("Allow: POST, PATCH");
                     break;
             }
 

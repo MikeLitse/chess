@@ -2,7 +2,18 @@
 This is an RESTful API that serves a chess game where two human players can play with each other
 
 ## API ENDPOINTS
-| Method | URL | Description |
-| :--- | :--- | :--- |
-| 'POST' | 'http://localhost/chess/index.php/auth/login' | {"user": "admin", "pass": "admin"} |
-| 'POST' | 'http://localhost/chess/index.php/auth/login' | Login |
+| Method | URL | Payload / Body | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | — | Diagnostics |
+| `POST` | `/auth/login` | `{"user":"string","pass":"string"}` | Login |
+| `POST` | `/users` | `{"user":"string","pass":"string"}` | Register |
+| `GET` | `/users/{id}` | — | Get User Info |
+| `PATCH` | `/users/{id}` | `{"user":"string", ...}` | Update User |
+| `DELETE` | `/users/{id}` | — | Delete User |
+| `GET` | `/games` | — | Get Joinable Games |
+| `POST` | `/games` | `{"id":1,"color":"white"}` | Create a new game |
+| `GET` | `/games/{id}` | — | Get a single game |
+| `PATCH` | `/games/{id}` | `{"userid":2}` | Join a game |
+| `POST` | `/play/{userId}` | `{"from":"e2","to":"e4"}` | Εκτέλεση κίνησης (με `userId` στο URL) |
+| `PATCH` | `/play/{userId}` | `{"action":"resign"}` | Player resign |
+| `*` | `/matchHistory` | — | *TODO: MATCH HISTORYSSS* |
