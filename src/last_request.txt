@@ -1,1 +1,1 @@
-{"url":"http:\/\/localhost\/chess\/index.php\/games\/21","method":"PATCH","time":"2026-11-10 14:14:37"}
+{"url":"http:\/\/localhost\/chess\/index.php\/auth\/login","method":"POST","time":"2026-11-10 15:39:47"}

@@ -320,8 +320,6 @@
                 return;
             }
 
-            $key = null;
-
             $token = JWT::encode(
                 [
                     "iat" => time(),
@@ -332,7 +330,7 @@
                                 "username" => $user["username"]
                             ]
                 ],
-                $key,
+                $this->jwtSecret,
                 'HS256'
             );
 
@@ -350,6 +348,7 @@
             http_response_code(200);
             echo json_encode([  
                 "message" => "Succesful Login",
+                "token" => $token,
                 "user" => [
                     "id" => (int) $user["id"],
                     "username" => $user["username"]
@@ -376,6 +375,12 @@
         }
 
         public function handlePlay(string $method, ?int $id){
+
+            $auth = $this->authUser();
+            if(!$auth){
+                return;
+            }
+
             //$id === userId
             if($id === null){
                 $data = (array) json_decode(file_get_contents("php://input"), true);

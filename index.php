@@ -3,7 +3,12 @@
 
     //autoload classes
     spl_autoload_register(function($class){
-        require __DIR__ . "/src/$class.php";
+        $path = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+        $file = __DIR__ . "/src/{$path}.php";
+
+        if (file_exists($file)) {
+            require_once $file;
+        }
     });
 
     //make req json
@@ -31,7 +36,7 @@
     $resource = $parts[1] ?? null;
     $id = $parts[2] ?? null;
 
-    $config = file_exists(__DIR__ . "/confing.php") ? require __DIR__ . "/config.php" : [];
+    $config = file_exists(__DIR__ . "/config.php") ? require __DIR__ . "/config.php" : [];
     $jwtSecret = $config["jwt_secret"] ?? "fallback_secret_for_dev";
 
     $database = new Database("localhost","chess_db","root","");
