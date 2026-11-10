@@ -5,12 +5,49 @@
     });
 
     use Firebase\JWT\JWT;
+    use Firebase\JWT\Key;
 
     class Controller{
 
         private string $logFile;
-        public function __construct(private Gateway $gateway){
+        public function __construct(private Gateway $gateway, private string $jwtSecret){
             $this->logFile = __DIR__ . '/last_request.txt';
+        }
+
+        public function authUser() : ?array {
+            $token = null;
+
+            if(!empty($_COOKIE["token"])){
+                $token = $_COOKIE["token"];
+            }
+
+            if(!$token){
+                $headers = getallheaders();
+                $authHeader = $headers["Authorization"] ?? $headers["authorization"] ?? null;
+
+                if($authHeader && preg_match("/Bearer\s(\S+)/", $authHeader, $matches)){
+                    $token = $matches[1];
+                }
+            }
+
+            if(!$token){
+                http_response_code(401);
+                echo json_encode(["message" => "Authentication required: missing token"]);
+                return null;
+            }
+
+            try{
+                $decoded = JWT::decode($token, new Key($this->jwtSecret, "HS256"));
+                return (array) $decoded->data;
+            }catch (Exception $e){
+                http_response_code(401);
+                echo json_encode([
+                                    "message" => "Invalid or expired token",
+                                    "error" => $e->getMessage()
+                                ]);
+                return null;
+            }
+
         }
 
         public function processRequest(string $method, ?string $resource, ?string $id) : void {
@@ -283,7 +320,7 @@
                 return;
             }
 
-            $key= null;
+            $key = null;
 
             $token = JWT::encode(
                 [

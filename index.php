@@ -31,13 +31,16 @@
     $resource = $parts[1] ?? null;
     $id = $parts[2] ?? null;
 
+    $config = file_exists(__DIR__ . "/confing.php") ? require __DIR__ . "/config.php" : [];
+    $jwtSecret = $config["jwt_secret"] ?? "fallback_secret_for_dev";
+
     $database = new Database("localhost","chess_db","root","");
 
     $database->getConnection();
 
     $gateway = new Gateway($database);
 
-    $controller = new Controller($gateway);
+    $controller = new Controller($gateway, $jwtSecret);
 
     $controller -> processRequest($_SERVER["REQUEST_METHOD"], $resource, $id);
     
