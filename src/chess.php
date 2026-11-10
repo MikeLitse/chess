@@ -264,6 +264,87 @@
             return null;
         }
 
-        
+        public function isSquareAttacked(int $row, int $col, string $byColor) : bool{
+
+            $knightOffsets = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+            $enemyKnight = ($byColor === "w") ? "N" : "n";
+
+            foreach($knightOffsets as [$dr, $dc]){
+                $r = $row + $dr;
+                $c = $col + $dc;
+
+                if($r >= 0 && $r < 8 && $c >= 0 && $c < 8 && $this->board[$r][$c] === $enemyKnight){
+                    return true;
+                }
+            }
+
+            $enemyRook = ($byColor === "w") ? "R" : "r";
+            $enemyQueen = ($byColor === "w") ? "Q" : "q";
+
+            foreach([[-1,0],[1,0],[0,-1],[0,1]] as [$dr, $dc]){
+                $r = $row + $dr;
+                $c = $col + $dc;
+
+                while($r >= 0 && $r < 8 && $c >= 0 && $c < 8){
+                    $p = $this->board[$r][$c];
+                    if($p !== ""){
+                        if($p === $enemyRook || $p === $enemyQueen){
+                            return true;
+                        }
+                    }
+                    $r += $dr;
+                    $c += $dc;
+                }
+            }
+
+            $enemyBishop = ($byColor === "w") ? "B" : "b";
+
+            foreach ([[-1,-1],[-1,1],[1,-1],[1,1]] as [$dr, $dc]){
+                $r = $row + $dr;
+                $c = $col + $dc;
+
+                while($r >= 0 && $r < 8 && $c >= 0 && $c < 8){
+                    $p = $this->board[$r][$c];
+                    if($p !== ""){
+                        if($p === $enemyBishop || $p === $enemyQueen){
+                            return true;
+                        }
+                    }
+                    $r += $dr;
+                    $c += $dc;
+                }
+            }
+
+            $pawnRow = ($byColor === "w") ? $row + 1 : $row -1;
+            $enemyPawn = ($byColor === "w") ? "P" : "p";
+
+            foreach([-1, 1] as $dc){
+                $pawnCol = $col + $dc;
+
+                if($pawnRow >= 0 && $pawnRow < 8 && $pawnCol >= 0 && $pawnCol < 8){
+                    if($this->board[$pawnRow][$pawnCol] === $enemyPawn){
+                        return true;
+                    }
+                }
+            }
+
+            $enemyKing = ($byColor === "w") ? "K" : "k";
+
+            for($dr = -1; $dr <= 1; $dr++){
+                for($dc = -1; $dc <= 1; $dc++){
+                    if($dr === 0 && $dc === 0){
+                        $r = $row + $dr;
+                        $c = $col + $dc;
+
+                        if($r >= 0 && $r < 8 && $c >=0 && $c < 8 $this->board[$r][$c] === $enemyKing){
+                            return true;
+                        }
+
+                    }
+                }
+            }
+            
+            return false;
+        }
     }
 ?>
