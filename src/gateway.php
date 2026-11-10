@@ -168,7 +168,7 @@
                 $sql = "UPDATE games
                         SET white = :userid,
                             status = 'playing',
-                            player_turn = :userid
+                            player_turn = :turnuserid
                         WHERE id = :id";
                 
             }
@@ -177,6 +177,7 @@
                 $stmt = $this->conn->prepare($sql);
                 $stmt->bindValue(":id", $id, PDO::PARAM_INT);
                 $stmt->bindValue(":userid", $data["userid"], PDO::PARAM_INT);
+                $stmt->bindValue(":turnuserid", $data["userid"], PDO::PARAM_INT);
                 $stmt->execute();
 
                 return $stmt->rowCount();

@@ -37,7 +37,6 @@
 
     $gateway = new Gateway($database);
 
-   
     $controller = new Controller($gateway);
 
     $controller -> processRequest($_SERVER["REQUEST_METHOD"], $resource, $id);

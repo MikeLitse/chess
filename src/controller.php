@@ -182,6 +182,13 @@
                             return;
                         }
 
+                        $now = new DateTime();
+                        if($game["expires_at"] < $now){
+                            http_response_code(400);
+                            echo json_encode(["message" => "This games has expired"]);
+                            return;
+                        }
+
                         $rows = $this->gateway->joinGame($id, $data);
 
                         if(!$rows){
@@ -328,6 +335,13 @@
             if($game["player_turn"] !== $userId){
                 http_response_code(403);
                 echo json_encode(["message" => "Not this user's turn"]);
+                return;
+            }
+
+            $now = new DateTime();
+            if($game["expires_at"] < $now){
+                http_response_code(400);
+                echo json_encode(["message" => "This games has expired"]);
                 return;
             }
 
