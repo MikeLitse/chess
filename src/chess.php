@@ -249,5 +249,21 @@
             return true;
 
         }
+
+        private function findKing(string $color) : ?array {
+            $target = ($color ==="w") ? "K" : "k";
+
+            for($r = 0; $r < 8; $r++){
+                for($c = 0; $c < 8; $c++){
+                    if($this->board[$r][$c] === $target){
+                        return [$r , $c];
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        
     }
 ?>
