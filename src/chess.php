@@ -336,15 +336,28 @@
                         $r = $row + $dr;
                         $c = $col + $dc;
 
-                        if($r >= 0 && $r < 8 && $c >=0 && $c < 8 $this->board[$r][$c] === $enemyKing){
+                        if($r >= 0 && $r < 8 && $c >=0 && $c < 8 && $this->board[$r][$c] === $enemyKing){
                             return true;
                         }
 
                     }
                 }
             }
-            
+
             return false;
+        }
+
+        public function isCheck(string $color) : bool{
+            
+            $kingPos = $this->findKing($color);
+            if(!$kingPos){
+                return false;
+            }
+
+            $opponent = ($color === "w") ? "b" : "w";
+
+            return $this->isSquareAttacked($kingPos[0], $kingPos[1], $opponent);
+
         }
     }
 ?>
