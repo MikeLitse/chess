@@ -122,6 +122,8 @@
                 }
             }
 
+            $savedBoard = $this->board;
+
             $dRow = $toRow - $fromRow;
             $dCol = $toCol - $fromCol;
             $absRow = abs($dRow);// === |$toRow - $fromRow|
@@ -187,6 +189,11 @@
 
             $this->board[$toRow][$toCol] = $piece;
             $this->board[$fromRow][$fromCol] = "";
+
+            if($this->isCheck($this->activeColor)){
+                $this->board = $savedBoard;
+                return false;
+            }
 
             if(strtoupper($piece) === "P" || $targetPiece !== ""){
                 $this->halfmoveClock = 0;
@@ -284,13 +291,15 @@
             foreach([[-1,0],[1,0],[0,-1],[0,1]] as [$dr, $dc]){
                 $r = $row + $dr;
                 $c = $col + $dc;
+                $blocked = false;
 
-                while($r >= 0 && $r < 8 && $c >= 0 && $c < 8){
+                while($r >= 0 && $r < 8 && $c >= 0 && $c < 8 && !$blocked){
                     $p = $this->board[$r][$c];
                     if($p !== ""){
                         if($p === $enemyRook || $p === $enemyQueen){
                             return true;
                         }
+                        $blocked = true;
                     }
                     $r += $dr;
                     $c += $dc;
@@ -302,13 +311,15 @@
             foreach ([[-1,-1],[-1,1],[1,-1],[1,1]] as [$dr, $dc]){
                 $r = $row + $dr;
                 $c = $col + $dc;
+                $blocked = false;
 
-                while($r >= 0 && $r < 8 && $c >= 0 && $c < 8){
+                while($r >= 0 && $r < 8 && $c >= 0 && $c < 8 && !$blocked){
                     $p = $this->board[$r][$c];
                     if($p !== ""){
                         if($p === $enemyBishop || $p === $enemyQueen){
                             return true;
                         }
+                        $blocked = true;
                     }
                     $r += $dr;
                     $c += $dc;
@@ -332,7 +343,7 @@
 
             for($dr = -1; $dr <= 1; $dr++){
                 for($dc = -1; $dc <= 1; $dc++){
-                    if($dr === 0 && $dc === 0){
+                    if($dr !== 0 || $dc !== 0){
                         $r = $row + $dr;
                         $c = $col + $dc;
 
@@ -357,7 +368,6 @@
             $opponent = ($color === "w") ? "b" : "w";
 
             return $this->isSquareAttacked($kingPos[0], $kingPos[1], $opponent);
-
         }
     }
 ?>
