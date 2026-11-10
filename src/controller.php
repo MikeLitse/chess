@@ -4,6 +4,8 @@
         require __DIR__ . "/src/$class.php";
     });
 
+    use Firebase\JWT\JWT;
+
     class Controller{
 
         private string $logFile;
@@ -280,6 +282,33 @@
                 echo json_encode(["message" => "Invalid credentials"]);
                 return;
             }
+
+            $key= null;
+
+            $token = JWT::encode(
+                [
+                    "iat" => time(),
+                    "nbf" => time(),
+                    "exp" => time() + 3600,
+                    "data" => [
+                                "userid" => $user["id"],
+                                "username" => $user["username"]
+                            ]
+                ],
+                $key,
+                'HS256'
+            );
+
+            $isHttps = (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off") || $_SERVER["SERVER_PORT"] === 443;
+
+            setcookie("token", $token, [
+                "expires" => time() + 3600,
+                "path" => "/",
+                "domain" => "",
+                "secure" => $isHttps,
+                "httponly" => true,
+                "samesite" => "Lax"
+            ]);
 
             http_response_code(200);
             echo json_encode([  
