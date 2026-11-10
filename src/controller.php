@@ -1,9 +1,5 @@
 <?php 
 
-    spl_autoload_register(function($class){
-        require __DIR__ . "/src/$class.php";
-    });
-
     use Firebase\JWT\JWT;
     use Firebase\JWT\Key;
 
@@ -222,7 +218,7 @@
                         }
 
                         $now = new DateTime();
-                        if($game["expires_at"] < $now){
+                        if(new DateTime($game["expires_at"]) < $now){
                             http_response_code(400);
                             echo json_encode(["message" => "This games has expired"]);
                             return;
@@ -381,13 +377,9 @@
                 return;
             }
 
-            //$id === userId
-            if($id === null){
-                $data = (array) json_decode(file_get_contents("php://input"), true);
-                $userId= $data["userid"];
-            }else{
-                $userId=$id;
-            }
+            $userId = $auth["userid"];
+
+            $data = (array) json_decode(file_get_contents("php://input"), true);
 
             if(empty($userId)){
                 http_response_code(400);
@@ -403,14 +395,14 @@
                 return;
             }
 
-            if($game["player_turn"] !== $userId){
+            if((int)$game["player_turn"] !== $userId){
                 http_response_code(403);
                 echo json_encode(["message" => "Not this user's turn"]);
                 return;
             }
 
             $now = new DateTime();
-            if($game["expires_at"] < $now){
+            if(new DateTime($game["expires_at"]) < $now){
                 http_response_code(400);
                 echo json_encode(["message" => "This games has expired"]);
                 return;
