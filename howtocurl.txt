@@ -31,5 +31,3 @@ POST (Play): curl -X POST http://localhost/chess/index.php/play \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer {token}" \
   -d '{"from": "e2", "to": "e4"}'
-  
-

@@ -149,7 +149,8 @@
 
         }
 
-        public function joinGame(int $id, array $data) : int | false{
+        public function joinGame(int $id, array $data) : int | false {
+            //TODO Not allow a single user to be in multiple games at once
             $gamecurr = $this->getGame($id);
             
             if (!$gamecurr) {

@@ -194,6 +194,7 @@
                         break;
 
                     case "PATCH":
+                        //TODO Not allow a single user to be in multiple games at once
                         $data = (array) json_decode(file_get_contents("php://input"), true);
                         $game = $this->gateway->getGame($id);
                         
