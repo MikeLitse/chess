@@ -1,4 +1,5 @@
-<?php
+<?php 
+    //this should for every legal move in chess, might make changes later
     class chess{
         private array $board = [];
         private string $activeColor;

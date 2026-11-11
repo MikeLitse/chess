@@ -21,12 +21,6 @@
     $path = trim(str_replace('index.php', '', $rawPath), '/');
     $parts = array_values(array_filter(explode('/', $path)));
 
-    if($parts[0] != "chess"){
-        //return 404 if any other URL
-        http_response_code(404);
-        exit;
-    }
-
     if (empty($parts) || $parts[0] !== 'chess') {
         http_response_code(404);
         echo json_encode(["message" => "Endpoint not found"]);

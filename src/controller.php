@@ -482,11 +482,30 @@
                         return;
                     }
                     break;
+                default:
+                    http_response_code(405);
+                    header("Allow: POST, PATCH");
             }
 
         }
         
         public function handleMatchHistory(string $method){
+            switch($method){
+                case "GET":
+                    $game = $this->gateway->getMatchesHistory();
+                    if(!$game){
+                        http_response_code(404);
+                        echo json_encode(["message" => "Game Not Found"]);
+                        return;
+                        }
+                    echo json_encode($game);
+                    break;
+
+                default:
+                    http_response_code(405);
+                    header("Allow: GET");
+                    break;
+            }
             
         }
 

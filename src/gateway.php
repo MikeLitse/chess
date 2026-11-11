@@ -289,5 +289,14 @@
             return $stmt->rowCount();
         }
 
+        public function getMatchesHistory(){
+
+            $sql = "SELECT * FROM games WHERE status = 'finished'";
+
+            $stmt = $this->conn->query($sql);
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
     }
 ?>
