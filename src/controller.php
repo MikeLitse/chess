@@ -194,8 +194,19 @@
                         break;
 
                     case "PATCH":
-                        //TODO Not allow a single user to be in multiple games at once
+                       //TODO changes this so a user cannot be in multiple games at once
+                        //if userid exists in ongoing game cannot create new game
+                        //add function where it gets the games with userid
+
                         $data = (array) json_decode(file_get_contents("php://input"), true);
+
+                        $game = $this->gateway->getGameByUser($data["userid"]);
+                        if(!empty($game)){
+                            http_response_code(422);
+                            echo json_encode(["message" => "this user is already participating in a game"]);
+                            return;
+                        }
+                        
                         $game = $this->gateway->getGame($id);
                         
                         if(!$game){
@@ -252,11 +263,19 @@
                     case "POST":
                         //TODO changes this so a user cannot be in multiple games at once
                         //if userid exists in ongoing game cannot create new game
+                        //add function where it gets the games with userid
                         $data = (array) json_decode(file_get_contents("php://input"), true);
+
+                        $game = $this->gateway->getGameByUser($data["id"]);
+                        if(!empty($game)){
+                            http_response_code(422);
+                            echo json_encode(["message" => "this user is already participating in a game"]);
+                            return;
+                        }
 
                         if(empty($data["id"]) || empty($data["color"])){
                             http_response_code(422);
-                            echo json_encode(["errors" => "userid and color are required"]);
+                            echo json_encode(["message" => "userid and color are required"]);
                             return;
                         }
 
@@ -396,6 +415,12 @@
                 return;
             }
 
+            if($game["status"] !== "playing"){
+                http_response_code(403);
+                echo json_encode(["message" => "This game is not being played"]);
+                return;
+            }
+
             if((int)$game["player_turn"] !== $userId){
                 http_response_code(403);
                 echo json_encode(["message" => "Not this user's turn"]);
@@ -467,6 +492,13 @@
                     }
 
                     if($data["action"] === "resign"){
+
+                        if($game["status"] !== "playing"){
+                            http_response_code(403);
+                            echo json_encode(["message" => "This game is not being played"]);
+                            return;
+                        }
+                        
                         $game = $this->gateway->getGameByUser($id);
 
                         $rows = $this->gateway->resignGame($game,$id);

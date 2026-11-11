@@ -110,7 +110,7 @@
         }
 
         public function createGame(array $data) : array | false{
-            
+
             $sql= null;
             
             if($data["color"] === "white"){
@@ -147,6 +147,24 @@
 
             return $stmt->fetch(PDO::FETCH_ASSOC);
 
+        }
+
+        public function getUserInGame(int $id) : array | false{
+
+            $sql = "SELECT * FROM games
+                    WHERE (white = :whiteid
+                    OR 
+                    black = :blackid)
+                    AND status <> 'finished'" 
+            ;
+
+            $stmt =$this->conn->prepare($sql);
+            $stmt->bindValue(":whiteid", $id, PDO::PARAM_INT);
+            $stmt->bindValue(":blackid", $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            return $stmt->fetch(PDO::FETCH_ASSOC);
         }
 
         public function joinGame(int $id, array $data) : int | false {
@@ -247,7 +265,7 @@
                     WHERE (white = :whiteid
                     OR 
                     black = :blackid)
-                    AND status ='playing'" 
+                    AND status <> 'finished'" 
             ;
 
             $stmt =$this->conn->prepare($sql);
