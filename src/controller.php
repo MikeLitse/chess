@@ -75,7 +75,7 @@
                     $this->handlePlay($method,$id !== null ? (int)$id : null);
                     break;
                 case "matchHistory":
-                    $this->handleMatchHistory($method);//TODO
+                    $this->handleMatchHistory($method);
                     break;
                 case null:
                 case "":
@@ -194,10 +194,6 @@
                         break;
 
                     case "PATCH":
-                       //TODO changes this so a user cannot be in multiple games at once
-                        //if userid exists in ongoing game cannot create new game
-                        //add function where it gets the games with userid
-
                         $data = (array) json_decode(file_get_contents("php://input"), true);
 
                         $game = $this->gateway->getGameByUser($data["userid"]);
@@ -216,7 +212,7 @@
                         }
 
                         if($game["status"] === "playing"){
-                            http_response_code(409);//conflict
+                            http_response_code(409);
                             echo json_encode(["message" => "Game is already in progress",
                                                 "game"=> $game               
                             ]);
@@ -261,9 +257,6 @@
             }else{
                 switch($method){
                     case "POST":
-                        //TODO changes this so a user cannot be in multiple games at once
-                        //if userid exists in ongoing game cannot create new game
-                        //add function where it gets the games with userid
                         $data = (array) json_decode(file_get_contents("php://input"), true);
 
                         $game = $this->gateway->getGameByUser($data["id"]);
@@ -289,7 +282,10 @@
 
                         http_response_code(201);
                         header("Location: /chess/games/" . $game["id"]);
-                        echo json_encode(["message" => "Game Created", "game" => $game]);
+                        echo json_encode([
+                            "message" => "Game Created", 
+                            "game" => $game
+                        ]);
                         break;
 
                     case "GET":
@@ -342,9 +338,9 @@
                     "nbf" => time(),
                     "exp" => time() + 3600,
                     "data" => [
-                                "userid" => $user["id"],
-                                "username" => $user["username"]
-                            ]
+                        "userid" => $user["id"],
+                        "username" => $user["username"]
+                    ]
                 ],
                 $this->jwtSecret,
                 'HS256'
@@ -368,7 +364,7 @@
                 "user" => [
                     "id" => (int) $user["id"],
                     "username" => $user["username"]
-                    ]
+                ]
                 
             ]);
 
